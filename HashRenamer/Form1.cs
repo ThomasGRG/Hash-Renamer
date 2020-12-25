@@ -1,0 +1,182 @@
+﻿using Force.Crc32;
+using System;
+using System.Collections.Generic;
+using System.ComponentModel;
+using System.IO;
+using System.Windows.Forms;
+
+namespace HashRenamer
+{
+    public partial class Form1 : Form
+    {
+        List<string> files = new List<string>();
+        string[] newNames;
+        bool cancel = false;
+        string[] hex;
+        int fCount = 0;
+
+        public Form1()
+        {
+            InitializeComponent();
+        }
+        
+        private void selectfilesBtn_Click(object sender, EventArgs e)
+        {
+            if (openFileDialog1.ShowDialog() == DialogResult.OK)
+            {
+                files.AddRange(openFileDialog1.FileNames);
+                label2.Text = "0/" + files.Count.ToString();
+                for (int i = listView1.Items.Count; i < files.Count; i++)
+                {
+                    ListViewItem item = new ListViewItem(new string[] { "00" + (i + 1).ToString(), files[i].Substring(files[i].LastIndexOf("\\")+1) });
+                    listView1.Items.Add(item);
+                }
+            }
+        }
+
+        private void hashBtn_Click(object sender, EventArgs e)
+        {
+            hashBtn.Enabled = false;
+            selectfilesBtn.Enabled = false;
+            renameBtn.Enabled = false;
+            hex = new string[files.Count];
+            newNames = new string[files.Count];
+            totprogressBar.Maximum = files.Count;
+            fileprogressBar.Maximum = 100;
+            backgroundWorker1.RunWorkerAsync();
+        }
+
+        private void backgroundWorker1_DoWork(object sender, System.ComponentModel.DoWorkEventArgs e)
+        {
+            BackgroundWorker worker = sender as BackgroundWorker;
+
+            for (int i = 0; i < files.Count; i++)
+            {
+                if (worker.CancellationPending == true)
+                {
+                    e.Cancel = true;
+                    break;
+                }
+                var crc32 = new Crc32Algorithm();
+                FileStream stream = File.OpenRead(files[i]);
+                
+                byte[] hash = null;
+                string cHex = "";
+                int p = 0;
+                int _bufferSize = 4096;
+
+                byte[] readAheadBuffer, buffer;
+                int readAheadBytesRead, bytesRead;
+                long size, cnt = 0, totalBytesRead = 0;
+
+                size = stream.Length;
+                cnt = size / Convert.ToInt64(_bufferSize);
+                cnt = (cnt + 1)/100;
+                readAheadBuffer = new byte[_bufferSize];
+                readAheadBytesRead = stream.Read(readAheadBuffer, 0, readAheadBuffer.Length);
+
+                totalBytesRead += readAheadBytesRead;
+
+                do
+                {
+                    bytesRead = readAheadBytesRead;
+                    buffer = readAheadBuffer;
+
+                    readAheadBuffer = new byte[_bufferSize];
+                    readAheadBytesRead = stream.Read(readAheadBuffer, 0, readAheadBuffer.Length);
+
+                    totalBytesRead += readAheadBytesRead;
+
+                    if (readAheadBytesRead == 0)
+                        crc32.TransformFinalBlock(buffer, 0, bytesRead);
+                    else
+                        crc32.TransformBlock(buffer, 0, bytesRead, buffer, 0);
+                    p += 1;
+                    if (p == cnt)
+                    {
+                        p = 0;
+                        worker.ReportProgress(1);
+                    }
+                } while (readAheadBytesRead != 0 && !cancel);
+
+                if (cancel)
+                {
+                    hash = null;
+                }
+                else
+                {
+                    hash = crc32.Hash;
+                    foreach (byte b in hash)
+                        cHex += b.ToString("x2");
+                    hex[fCount] = cHex.ToUpper();
+                    worker.ReportProgress(100);
+                }
+                
+                crc32.Dispose();
+                stream.Dispose();
+            }
+        }
+
+        private void cancelBtn_Click(object sender, EventArgs e)
+        {
+            cancel = true;
+            backgroundWorker1.CancelAsync();
+        }
+
+        private void backgroundWorker1_ProgressChanged(object sender, ProgressChangedEventArgs e)
+        {
+            int c = e.ProgressPercentage;
+            if(c == 100)
+            {
+                fileprogressBar.Value = c;
+                label1.Text = c.ToString() + "%";
+                totprogressBar.Value += 1;
+                int a = files[fCount].LastIndexOf("\\") + 1;
+                int b = files[fCount].LastIndexOf(".");
+                string name = files[fCount].Substring(a, b - a) + " [" + hex[fCount] + "]" + files[fCount].Substring(files[fCount].LastIndexOf("."));
+                newNames[fCount] = files[fCount].Substring(0, files[fCount].LastIndexOf("\\") + 1) + name;
+                label2.Text = (fCount + 1).ToString() + "/" + files.Count.ToString();
+                listView1.Items[fCount].SubItems.Add(hex[fCount]);
+                listView1.Items[fCount].SubItems.Add(name);
+                fCount += 1;
+            }
+            else
+            {
+                fileprogressBar.Value += c;
+                label1.Text = fileprogressBar.Value.ToString() + "%";
+            }
+            
+        }
+
+        private void renameBtn_Click(object sender, EventArgs e)
+        {
+            for (int i = 0; i < files.Count; i++)
+            {
+                try
+                {
+                    File.Move(files[i], newNames[i]);
+                    listView1.Items[i].ForeColor = System.Drawing.Color.LightGreen;
+                }
+                catch (Exception ex)
+                {
+                    listView1.Items[i].ForeColor = System.Drawing.Color.Red;
+                    //MessageBox.Show(ex.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                }
+            }
+        }
+
+        private void backgroundWorker1_RunWorkerCompleted(object sender, RunWorkerCompletedEventArgs e)
+        {
+            hashBtn.Enabled = true;
+            selectfilesBtn.Enabled = true;
+            renameBtn.Enabled = true;
+            if (cancel)
+            {
+                fileprogressBar.Value = 100;
+                totprogressBar.Value = totprogressBar.Maximum;
+                label1.Text = "%";
+                label2.Text = "-/-";
+            }
+        }
+    }
+}
