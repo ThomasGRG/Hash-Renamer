@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Diagnostics;
 using System.IO;
 using System.Windows.Forms;
 
@@ -9,6 +10,8 @@ namespace HashRenamer
 {
     public partial class Form1 : Form
     {
+        Timer timer = new Timer();
+        Stopwatch stopWatch = new Stopwatch();
         List<string> files = new List<string>();
         string[] newNames;
         bool cancel = false;
@@ -18,6 +21,8 @@ namespace HashRenamer
         public Form1()
         {
             InitializeComponent();
+            timer.Tick += new EventHandler(timer_Tick);
+            timer.Interval = 1000;
         }
         
         private void selectfilesBtn_Click(object sender, EventArgs e)
@@ -43,7 +48,15 @@ namespace HashRenamer
             newNames = new string[files.Count];
             totprogressBar.Maximum = files.Count;
             fileprogressBar.Maximum = 100;
+            stopWatch.Start();
+            timer.Start();
+            timer.Enabled = true;
             backgroundWorker1.RunWorkerAsync();
+        }
+
+        private void timer_Tick(object sender, EventArgs e)
+        {
+            elapsedLabel.Text = "Elapsed Time : " + String.Format("{0:00}:{1:00}:{2:00}", stopWatch.Elapsed.Hours, stopWatch.Elapsed.Minutes, stopWatch.Elapsed.Seconds);
         }
 
         private void backgroundWorker1_DoWork(object sender, System.ComponentModel.DoWorkEventArgs e)
@@ -70,6 +83,7 @@ namespace HashRenamer
                 long size, cnt = 0, totalBytesRead = 0;
 
                 size = stream.Length;
+                worker.ReportProgress(0, size);
                 cnt = size / Convert.ToInt64(_bufferSize);
                 cnt = (cnt + 1)/100;
                 readAheadBuffer = new byte[_bufferSize];
@@ -95,7 +109,7 @@ namespace HashRenamer
                     if (p == cnt)
                     {
                         p = 0;
-                        worker.ReportProgress(1);
+                        worker.ReportProgress(1, totalBytesRead);
                     }
                 } while (readAheadBytesRead != 0 && !cancel);
 
@@ -109,7 +123,7 @@ namespace HashRenamer
                     foreach (byte b in hash)
                         cHex += b.ToString("x2");
                     hex[fCount] = cHex.ToUpper();
-                    worker.ReportProgress(100);
+                    worker.ReportProgress(100, size);
                 }
                 
                 crc32.Dispose();
@@ -128,6 +142,23 @@ namespace HashRenamer
             int c = e.ProgressPercentage;
             if(c == 100)
             {
+                double processed = (long)e.UserState;
+                if (processed <= 1024)
+                {
+                    processedLabel.Text = "Processed : " + processed.ToString() + "Bytes";
+                }
+                else if (processed <= 1048576)
+                {
+                    processedLabel.Text = "Processed : " + String.Format("{0:F2}", (processed / 1024.00)) + "KB";
+                }
+                else if (processed <= 1073741824)
+                {
+                    processedLabel.Text = "Processed : " + String.Format("{0:F2}", (processed / 1048576.00)) + "MB";
+                }
+                else if (processed > 1073741824)
+                {
+                    processedLabel.Text = "Processed : " + String.Format("{0:F2}", (processed / 1073741824.00)) + "GB";
+                }
                 fileprogressBar.Value = c;
                 label1.Text = c.ToString() + "%";
                 totprogressBar.Value += 1;
@@ -140,8 +171,45 @@ namespace HashRenamer
                 listView1.Items[fCount].SubItems.Add(name);
                 fCount += 1;
             }
+            else if(c == 0)
+            {
+                double totSize = (long)e.UserState;
+                if (totSize <= 1024)
+                {
+                    totSizeLabel.Text = "File Size : " +  totSize.ToString() + "Bytes";
+                }
+                else if ( totSize <= 1048576)
+                {
+                    totSizeLabel.Text = "File Size : " + String.Format("{0:F2}", (totSize / 1024.00)) + "KB";
+                }
+                else if(totSize <= 1073741824)
+                {
+                    totSizeLabel.Text = "File Size : " + String.Format("{0:F2}", (totSize / 1048576.00)) + "MB";
+                }
+                else if (totSize > 1073741824)
+                {
+                    totSizeLabel.Text = "File Size : " + String.Format("{0:F2}", (totSize / 1073741824.00)) + "GB";
+                }
+            }
             else
             {
+                double processed = (long)e.UserState;
+                if (processed <= 1024)
+                {
+                    processedLabel.Text = "Processed : " + processed.ToString() + "Bytes";
+                }
+                else if (processed <= 1048576)
+                {
+                    processedLabel.Text = "Processed : " + String.Format("{0:F2}", (processed / 1024.00)) + "KB";
+                }
+                else if (processed <= 1073741824)
+                {
+                    processedLabel.Text = "Processed : " + String.Format("{0:F2}", (processed / 1048576.00)) + "MB";
+                }
+                else if (processed > 1073741824)
+                {
+                    processedLabel.Text = "Processed : " + String.Format("{0:F2}", (processed / 1073741824.00)) + "GB";
+                }
                 fileprogressBar.Value += c;
                 label1.Text = fileprogressBar.Value.ToString() + "%";
             }
@@ -160,6 +228,7 @@ namespace HashRenamer
                 catch (Exception ex)
                 {
                     listView1.Items[i].ForeColor = System.Drawing.Color.Red;
+                    listView1.Items[i].ToolTipText = ex.Message;
                     //MessageBox.Show(ex.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 }
             }
@@ -167,6 +236,8 @@ namespace HashRenamer
 
         private void backgroundWorker1_RunWorkerCompleted(object sender, RunWorkerCompletedEventArgs e)
         {
+            stopWatch.Stop();
+            timer.Stop();
             hashBtn.Enabled = true;
             selectfilesBtn.Enabled = true;
             renameBtn.Enabled = true;
@@ -178,5 +249,6 @@ namespace HashRenamer
                 label2.Text = "-/-";
             }
         }
+
     }
 }

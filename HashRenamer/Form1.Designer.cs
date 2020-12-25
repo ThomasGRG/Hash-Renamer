@@ -28,7 +28,6 @@
         /// </summary>
         private void InitializeComponent()
         {
-            this.textBox1 = new System.Windows.Forms.TextBox();
             this.listView1 = new System.Windows.Forms.ListView();
             this.columnHeader1 = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
             this.columnHeader2 = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
@@ -44,14 +43,10 @@
             this.hashBtn = new System.Windows.Forms.Button();
             this.label2 = new System.Windows.Forms.Label();
             this.label1 = new System.Windows.Forms.Label();
+            this.elapsedLabel = new System.Windows.Forms.Label();
+            this.totSizeLabel = new System.Windows.Forms.Label();
+            this.processedLabel = new System.Windows.Forms.Label();
             this.SuspendLayout();
-            // 
-            // textBox1
-            // 
-            this.textBox1.Location = new System.Drawing.Point(393, 334);
-            this.textBox1.Name = "textBox1";
-            this.textBox1.Size = new System.Drawing.Size(100, 20);
-            this.textBox1.TabIndex = 1;
             // 
             // listView1
             // 
@@ -71,7 +66,7 @@
             this.listView1.MultiSelect = false;
             this.listView1.Name = "listView1";
             this.listView1.ShowItemToolTips = true;
-            this.listView1.Size = new System.Drawing.Size(991, 357);
+            this.listView1.Size = new System.Drawing.Size(991, 298);
             this.listView1.TabIndex = 2;
             this.listView1.UseCompatibleStateImageBehavior = false;
             this.listView1.View = System.Windows.Forms.View.Details;
@@ -113,27 +108,27 @@
             // 
             this.totprogressBar.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
-            this.totprogressBar.Location = new System.Drawing.Point(54, 426);
+            this.totprogressBar.Location = new System.Drawing.Point(272, 357);
             this.totprogressBar.Name = "totprogressBar";
-            this.totprogressBar.Size = new System.Drawing.Size(497, 23);
+            this.totprogressBar.Size = new System.Drawing.Size(731, 23);
             this.totprogressBar.TabIndex = 9;
             // 
             // fileprogressBar
             // 
             this.fileprogressBar.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
-            this.fileprogressBar.Location = new System.Drawing.Point(54, 392);
+            this.fileprogressBar.Location = new System.Drawing.Point(272, 325);
             this.fileprogressBar.Name = "fileprogressBar";
-            this.fileprogressBar.Size = new System.Drawing.Size(497, 23);
+            this.fileprogressBar.Size = new System.Drawing.Size(731, 23);
             this.fileprogressBar.TabIndex = 7;
             // 
             // cancelBtn
             // 
             this.cancelBtn.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
             this.cancelBtn.FlatStyle = System.Windows.Forms.FlatStyle.System;
-            this.cancelBtn.Location = new System.Drawing.Point(557, 392);
+            this.cancelBtn.Location = new System.Drawing.Point(541, 388);
             this.cancelBtn.Name = "cancelBtn";
-            this.cancelBtn.Size = new System.Drawing.Size(107, 57);
+            this.cancelBtn.Size = new System.Drawing.Size(111, 61);
             this.cancelBtn.TabIndex = 12;
             this.cancelBtn.Text = "Cancel";
             this.cancelBtn.UseVisualStyleBackColor = true;
@@ -143,9 +138,9 @@
             // 
             this.renameBtn.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
             this.renameBtn.FlatStyle = System.Windows.Forms.FlatStyle.System;
-            this.renameBtn.Location = new System.Drawing.Point(783, 392);
+            this.renameBtn.Location = new System.Drawing.Point(775, 388);
             this.renameBtn.Name = "renameBtn";
-            this.renameBtn.Size = new System.Drawing.Size(107, 57);
+            this.renameBtn.Size = new System.Drawing.Size(111, 61);
             this.renameBtn.TabIndex = 11;
             this.renameBtn.Text = "Rename";
             this.renameBtn.UseVisualStyleBackColor = true;
@@ -155,9 +150,9 @@
             // 
             this.selectfilesBtn.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
             this.selectfilesBtn.FlatStyle = System.Windows.Forms.FlatStyle.System;
-            this.selectfilesBtn.Location = new System.Drawing.Point(670, 392);
+            this.selectfilesBtn.Location = new System.Drawing.Point(658, 388);
             this.selectfilesBtn.Name = "selectfilesBtn";
-            this.selectfilesBtn.Size = new System.Drawing.Size(107, 57);
+            this.selectfilesBtn.Size = new System.Drawing.Size(111, 61);
             this.selectfilesBtn.TabIndex = 10;
             this.selectfilesBtn.Text = "Select Files";
             this.selectfilesBtn.UseVisualStyleBackColor = true;
@@ -167,9 +162,9 @@
             // 
             this.hashBtn.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
             this.hashBtn.FlatStyle = System.Windows.Forms.FlatStyle.System;
-            this.hashBtn.Location = new System.Drawing.Point(896, 392);
+            this.hashBtn.Location = new System.Drawing.Point(892, 388);
             this.hashBtn.Name = "hashBtn";
-            this.hashBtn.Size = new System.Drawing.Size(107, 57);
+            this.hashBtn.Size = new System.Drawing.Size(111, 61);
             this.hashBtn.TabIndex = 8;
             this.hashBtn.Text = "Hash";
             this.hashBtn.UseVisualStyleBackColor = true;
@@ -180,7 +175,7 @@
             this.label2.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
             this.label2.AutoSize = true;
             this.label2.ForeColor = System.Drawing.SystemColors.Info;
-            this.label2.Location = new System.Drawing.Point(11, 430);
+            this.label2.Location = new System.Drawing.Point(226, 363);
             this.label2.Name = "label2";
             this.label2.Size = new System.Drawing.Size(24, 13);
             this.label2.TabIndex = 14;
@@ -191,11 +186,44 @@
             this.label1.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
             this.label1.AutoSize = true;
             this.label1.ForeColor = System.Drawing.SystemColors.Info;
-            this.label1.Location = new System.Drawing.Point(11, 399);
+            this.label1.Location = new System.Drawing.Point(226, 332);
             this.label1.Name = "label1";
             this.label1.Size = new System.Drawing.Size(21, 13);
             this.label1.TabIndex = 15;
             this.label1.Text = "0%";
+            // 
+            // elapsedLabel
+            // 
+            this.elapsedLabel.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
+            this.elapsedLabel.AutoSize = true;
+            this.elapsedLabel.ForeColor = System.Drawing.SystemColors.Info;
+            this.elapsedLabel.Location = new System.Drawing.Point(12, 332);
+            this.elapsedLabel.Name = "elapsedLabel";
+            this.elapsedLabel.Size = new System.Drawing.Size(77, 13);
+            this.elapsedLabel.TabIndex = 16;
+            this.elapsedLabel.Text = "Elapsed Time :";
+            // 
+            // totSizeLabel
+            // 
+            this.totSizeLabel.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
+            this.totSizeLabel.AutoSize = true;
+            this.totSizeLabel.ForeColor = System.Drawing.SystemColors.Info;
+            this.totSizeLabel.Location = new System.Drawing.Point(12, 363);
+            this.totSizeLabel.Name = "totSizeLabel";
+            this.totSizeLabel.Size = new System.Drawing.Size(52, 13);
+            this.totSizeLabel.TabIndex = 17;
+            this.totSizeLabel.Text = "File Size :";
+            // 
+            // processedLabel
+            // 
+            this.processedLabel.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
+            this.processedLabel.AutoSize = true;
+            this.processedLabel.ForeColor = System.Drawing.SystemColors.Info;
+            this.processedLabel.Location = new System.Drawing.Point(12, 394);
+            this.processedLabel.Name = "processedLabel";
+            this.processedLabel.Size = new System.Drawing.Size(63, 13);
+            this.processedLabel.TabIndex = 18;
+            this.processedLabel.Text = "Processed :";
             // 
             // Form1
             // 
@@ -203,6 +231,9 @@
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(25)))), ((int)(((byte)(25)))), ((int)(((byte)(25)))));
             this.ClientSize = new System.Drawing.Size(1015, 461);
+            this.Controls.Add(this.processedLabel);
+            this.Controls.Add(this.totSizeLabel);
+            this.Controls.Add(this.elapsedLabel);
             this.Controls.Add(this.label1);
             this.Controls.Add(this.label2);
             this.Controls.Add(this.totprogressBar);
@@ -212,7 +243,6 @@
             this.Controls.Add(this.selectfilesBtn);
             this.Controls.Add(this.hashBtn);
             this.Controls.Add(this.listView1);
-            this.Controls.Add(this.textBox1);
             this.MinimumSize = new System.Drawing.Size(1030, 500);
             this.Name = "Form1";
             this.Text = "Hash Renamer";
@@ -222,7 +252,6 @@
         }
 
         #endregion
-        private System.Windows.Forms.TextBox textBox1;
         private System.Windows.Forms.ListView listView1;
         private System.Windows.Forms.ColumnHeader columnHeader1;
         private System.Windows.Forms.ColumnHeader columnHeader2;
@@ -238,6 +267,9 @@
         private System.Windows.Forms.Button hashBtn;
         private System.Windows.Forms.Label label2;
         private System.Windows.Forms.Label label1;
+        private System.Windows.Forms.Label elapsedLabel;
+        private System.Windows.Forms.Label totSizeLabel;
+        private System.Windows.Forms.Label processedLabel;
     }
 }
 
