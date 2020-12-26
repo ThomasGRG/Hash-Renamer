@@ -46,6 +46,7 @@
             this.elapsedLabel = new System.Windows.Forms.Label();
             this.totSizeLabel = new System.Windows.Forms.Label();
             this.processedLabel = new System.Windows.Forms.Label();
+            this.speedLabel = new System.Windows.Forms.Label();
             this.SuspendLayout();
             // 
             // listView1
@@ -225,12 +226,24 @@
             this.processedLabel.TabIndex = 18;
             this.processedLabel.Text = "Processed :";
             // 
+            // speedLabel
+            // 
+            this.speedLabel.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
+            this.speedLabel.AutoSize = true;
+            this.speedLabel.ForeColor = System.Drawing.SystemColors.Info;
+            this.speedLabel.Location = new System.Drawing.Point(12, 422);
+            this.speedLabel.Name = "speedLabel";
+            this.speedLabel.Size = new System.Drawing.Size(44, 13);
+            this.speedLabel.TabIndex = 19;
+            this.speedLabel.Text = "Speed :";
+            // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(25)))), ((int)(((byte)(25)))), ((int)(((byte)(25)))));
             this.ClientSize = new System.Drawing.Size(1015, 461);
+            this.Controls.Add(this.speedLabel);
             this.Controls.Add(this.processedLabel);
             this.Controls.Add(this.totSizeLabel);
             this.Controls.Add(this.elapsedLabel);
@@ -270,6 +283,7 @@
         private System.Windows.Forms.Label elapsedLabel;
         private System.Windows.Forms.Label totSizeLabel;
         private System.Windows.Forms.Label processedLabel;
+        private System.Windows.Forms.Label speedLabel;
     }
 }
 

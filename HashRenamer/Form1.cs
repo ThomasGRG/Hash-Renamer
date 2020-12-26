@@ -17,6 +17,7 @@ namespace HashRenamer
         bool cancel = false;
         string[] hex;
         int fCount = 0;
+        long tmp1, tmp2;
 
         public Form1()
         {
@@ -57,6 +58,24 @@ namespace HashRenamer
         private void timer_Tick(object sender, EventArgs e)
         {
             elapsedLabel.Text = "Elapsed Time : " + String.Format("{0:00}:{1:00}:{2:00}", stopWatch.Elapsed.Hours, stopWatch.Elapsed.Minutes, stopWatch.Elapsed.Seconds);
+            long tmp = tmp1 - tmp2;
+            tmp2 += tmp;
+            if (tmp  <= 1024)
+            {
+                speedLabel.Text = "Speed : " + tmp .ToString() + "Bytes/s";
+            }
+            else if (tmp  <= 1048576)
+            {
+                speedLabel.Text = "Speed : " + String.Format("{0:F2}", (tmp  / 1024.00)) + "KB/s";
+            }
+            else if (tmp  <= 1073741824)
+            {
+                speedLabel.Text = "Speed : " + String.Format("{0:F2}", (tmp  / 1048576.00)) + "MB/s";
+            }
+            else if (tmp  > 1073741824)
+            {
+                speedLabel.Text = "Speed : " + String.Format("{0:F2}", (tmp  / 1073741824.00)) + "GB/s";
+            }
         }
 
         private void backgroundWorker1_DoWork(object sender, System.ComponentModel.DoWorkEventArgs e)
@@ -97,6 +116,7 @@ namespace HashRenamer
                 readAheadBytesRead = stream.Read(readAheadBuffer, 0, readAheadBuffer.Length);
 
                 totalBytesRead += readAheadBytesRead;
+                tmp1 = tmp2 = totalBytesRead;
 
                 do
                 {
@@ -107,6 +127,7 @@ namespace HashRenamer
                     readAheadBytesRead = stream.Read(readAheadBuffer, 0, readAheadBuffer.Length);
 
                     totalBytesRead += readAheadBytesRead;
+                    tmp1 = totalBytesRead;
 
                     if (readAheadBytesRead == 0)
                         crc32.TransformFinalBlock(buffer, 0, bytesRead);
