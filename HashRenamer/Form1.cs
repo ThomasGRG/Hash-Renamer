@@ -94,6 +94,7 @@ namespace HashRenamer
                 
                 byte[] hash = null;
                 string cHex = "";
+                bool flag = true;
                 int p = 0;
                 int _bufferSize = 4096;
 
@@ -106,7 +107,8 @@ namespace HashRenamer
                 cnt = size / Convert.ToInt64(_bufferSize);
                 if(cnt <= 100)
                 {
-                    cnt = (100 / cnt);
+                    cnt = (100 / (cnt + 1));
+                    flag = false;
                 }
                 else
                 {
@@ -133,11 +135,18 @@ namespace HashRenamer
                         crc32.TransformFinalBlock(buffer, 0, bytesRead);
                     else
                         crc32.TransformBlock(buffer, 0, bytesRead, buffer, 0);
-                    p += 1;
-                    if (p == cnt)
+                    if (flag)
                     {
-                        p = 0;
-                        worker.ReportProgress(1, totalBytesRead);
+                        p += 1;
+                        if (p == cnt)
+                        {
+                            p = 0;
+                            worker.ReportProgress(1, totalBytesRead);
+                        }
+                    }
+                    else
+                    {
+                        worker.ReportProgress(Convert.ToInt32(cnt), totalBytesRead);
                     }
                 } while (readAheadBytesRead != 0 && !cancel);
 
@@ -239,6 +248,7 @@ namespace HashRenamer
                     processedLabel.Text = "Processed : " + String.Format("{0:F2}", (processed / 1073741824.00)) + "GB";
                 }
                 fileprogressBar.Value += c;
+                Console.WriteLine(fileprogressBar.Value);
                 label1.Text = fileprogressBar.Value.ToString() + "%";
             }
             

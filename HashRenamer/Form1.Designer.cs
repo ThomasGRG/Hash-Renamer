@@ -200,9 +200,9 @@
             this.elapsedLabel.ForeColor = System.Drawing.SystemColors.Info;
             this.elapsedLabel.Location = new System.Drawing.Point(12, 332);
             this.elapsedLabel.Name = "elapsedLabel";
-            this.elapsedLabel.Size = new System.Drawing.Size(77, 13);
+            this.elapsedLabel.Size = new System.Drawing.Size(122, 13);
             this.elapsedLabel.TabIndex = 16;
-            this.elapsedLabel.Text = "Elapsed Time :";
+            this.elapsedLabel.Text = "Elapsed Time : 00:00:00";
             // 
             // totSizeLabel
             // 
@@ -211,9 +211,9 @@
             this.totSizeLabel.ForeColor = System.Drawing.SystemColors.Info;
             this.totSizeLabel.Location = new System.Drawing.Point(12, 363);
             this.totSizeLabel.Name = "totSizeLabel";
-            this.totSizeLabel.Size = new System.Drawing.Size(52, 13);
+            this.totSizeLabel.Size = new System.Drawing.Size(61, 13);
             this.totSizeLabel.TabIndex = 17;
-            this.totSizeLabel.Text = "File Size :";
+            this.totSizeLabel.Text = "File Size : 0";
             // 
             // processedLabel
             // 
@@ -222,9 +222,9 @@
             this.processedLabel.ForeColor = System.Drawing.SystemColors.Info;
             this.processedLabel.Location = new System.Drawing.Point(12, 394);
             this.processedLabel.Name = "processedLabel";
-            this.processedLabel.Size = new System.Drawing.Size(63, 13);
+            this.processedLabel.Size = new System.Drawing.Size(72, 13);
             this.processedLabel.TabIndex = 18;
-            this.processedLabel.Text = "Processed :";
+            this.processedLabel.Text = "Processed : 0";
             // 
             // speedLabel
             // 
@@ -233,9 +233,9 @@
             this.speedLabel.ForeColor = System.Drawing.SystemColors.Info;
             this.speedLabel.Location = new System.Drawing.Point(12, 422);
             this.speedLabel.Name = "speedLabel";
-            this.speedLabel.Size = new System.Drawing.Size(44, 13);
+            this.speedLabel.Size = new System.Drawing.Size(53, 13);
             this.speedLabel.TabIndex = 19;
-            this.speedLabel.Text = "Speed :";
+            this.speedLabel.Text = "Speed : 0";
             // 
             // Form1
             // 
