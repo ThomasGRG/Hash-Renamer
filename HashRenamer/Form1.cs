@@ -85,7 +85,14 @@ namespace HashRenamer
                 size = stream.Length;
                 worker.ReportProgress(0, size);
                 cnt = size / Convert.ToInt64(_bufferSize);
-                cnt = (cnt + 1)/100;
+                if(cnt <= 100)
+                {
+                    cnt = (100 / cnt);
+                }
+                else
+                {
+                    cnt = (cnt / 100) + 1;
+                }
                 readAheadBuffer = new byte[_bufferSize];
                 readAheadBytesRead = stream.Read(readAheadBuffer, 0, readAheadBuffer.Length);
 
@@ -229,7 +236,6 @@ namespace HashRenamer
                 {
                     listView1.Items[i].ForeColor = System.Drawing.Color.Red;
                     listView1.Items[i].ToolTipText = ex.Message;
-                    //MessageBox.Show(ex.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 }
             }
         }
