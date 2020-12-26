@@ -210,6 +210,7 @@ namespace HashRenamer
             }
             else if(c == 0)
             {
+                fileprogressBar.Value = 0;
                 double totSize = (long)e.UserState;
                 if (totSize <= 1024)
                 {
@@ -248,10 +249,8 @@ namespace HashRenamer
                     processedLabel.Text = "Processed : " + String.Format("{0:F2}", (processed / 1073741824.00)) + "GB";
                 }
                 fileprogressBar.Value += c;
-                Console.WriteLine(fileprogressBar.Value);
                 label1.Text = fileprogressBar.Value.ToString() + "%";
             }
-            
         }
 
         private void renameBtn_Click(object sender, EventArgs e)
