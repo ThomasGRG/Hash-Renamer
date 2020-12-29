@@ -16,7 +16,7 @@ namespace HashRenamer
         string[] newNames;
         bool cancel = false;
         string[] hex;
-        int fCount = 0;
+        int fCount = 0, lCount = 0;
         long tmp1, tmp2;
 
         public Form1()
@@ -31,10 +31,10 @@ namespace HashRenamer
             if (openFileDialog1.ShowDialog() == DialogResult.OK)
             {
                 files.AddRange(openFileDialog1.FileNames);
-                label2.Text = "0/" + files.Count.ToString();
+                label2.Text = $"0/{files.Count}";
                 for (int i = listView1.Items.Count; i < files.Count; i++)
                 {
-                    ListViewItem item = new ListViewItem(new string[] { "00" + (i + 1).ToString(), files[i].Substring(files[i].LastIndexOf("\\")+1) });
+                    ListViewItem item = new ListViewItem(new string[] { $"00{(i + 1)}", files[i].Substring(files[i].LastIndexOf("\\")+1) });
                     listView1.Items.Add(item);
                 }
             }
@@ -57,24 +57,24 @@ namespace HashRenamer
 
         private void timer_Tick(object sender, EventArgs e)
         {
-            elapsedLabel.Text = "Elapsed Time : " + String.Format("{0:00}:{1:00}:{2:00}", stopWatch.Elapsed.Hours, stopWatch.Elapsed.Minutes, stopWatch.Elapsed.Seconds);
+            elapsedLabel.Text = $"Elapsed Time : {stopWatch.Elapsed.Hours:00}:{stopWatch.Elapsed.Minutes:00}:{stopWatch.Elapsed.Seconds:00}";
             long tmp = tmp1 - tmp2;
             tmp2 += tmp;
             if (tmp  <= 1024)
             {
-                speedLabel.Text = "Speed : " + tmp .ToString() + "Bytes/s";
+                speedLabel.Text = $"Speed : {tmp} Bytes/s";
             }
             else if (tmp  <= 1048576)
             {
-                speedLabel.Text = "Speed : " + String.Format("{0:F2}", (tmp  / 1024.00)) + "KB/s";
+                speedLabel.Text = $"Speed : {(tmp / 1024.00):F2} KB/s";
             }
             else if (tmp  <= 1073741824)
             {
-                speedLabel.Text = "Speed : " + String.Format("{0:F2}", (tmp  / 1048576.00)) + "MB/s";
+                speedLabel.Text = $"Speed : {(tmp / 1048576.00):F2} MB/s";
             }
             else if (tmp  > 1073741824)
             {
-                speedLabel.Text = "Speed : " + String.Format("{0:F2}", (tmp  / 1073741824.00)) + "GB/s";
+                speedLabel.Text = $"Speed : {(tmp / 1073741824.00):F2} GB/s";
             }
         }
 
@@ -160,6 +160,7 @@ namespace HashRenamer
                     foreach (byte b in hash)
                         cHex += b.ToString("x2");
                     hex[fCount] = cHex.ToUpper();
+                    fCount += 1;
                     worker.ReportProgress(100, size);
                 }
                 
@@ -182,31 +183,31 @@ namespace HashRenamer
                 double processed = (long)e.UserState;
                 if (processed <= 1024)
                 {
-                    processedLabel.Text = "Processed : " + processed.ToString() + "Bytes";
+                    processedLabel.Text = $"Processed : {processed} Bytes";
                 }
                 else if (processed <= 1048576)
                 {
-                    processedLabel.Text = "Processed : " + String.Format("{0:F2}", (processed / 1024.00)) + "KB";
+                    processedLabel.Text = $"Processed : {(processed / 1024.00):F2} KB";
                 }
                 else if (processed <= 1073741824)
                 {
-                    processedLabel.Text = "Processed : " + String.Format("{0:F2}", (processed / 1048576.00)) + "MB";
+                    processedLabel.Text = $"Processed : {(processed / 1048576.00):F2} MB";
                 }
                 else if (processed > 1073741824)
                 {
-                    processedLabel.Text = "Processed : " + String.Format("{0:F2}", (processed / 1073741824.00)) + "GB";
+                    processedLabel.Text = $"Processed : {(processed / 1073741824.00):F2} GB";
                 }
                 fileprogressBar.Value = c;
-                label1.Text = c.ToString() + "%";
+                label1.Text = $"{c}%";
                 totprogressBar.Value += 1;
-                int a = files[fCount].LastIndexOf("\\") + 1;
-                int b = files[fCount].LastIndexOf(".");
-                string name = files[fCount].Substring(a, b - a) + " [" + hex[fCount] + "]" + files[fCount].Substring(files[fCount].LastIndexOf("."));
-                newNames[fCount] = files[fCount].Substring(0, files[fCount].LastIndexOf("\\") + 1) + name;
-                label2.Text = (fCount + 1).ToString() + "/" + files.Count.ToString();
-                listView1.Items[fCount].SubItems.Add(hex[fCount]);
-                listView1.Items[fCount].SubItems.Add(name);
-                fCount += 1;
+                int a = files[lCount].LastIndexOf("\\") + 1;
+                int b = files[lCount].LastIndexOf(".");
+                string name = $"{files[lCount].Substring(a, b - a)} [{hex[lCount]}]{files[lCount].Substring(files[lCount].LastIndexOf("."))}";
+                newNames[lCount] = $"{files[lCount].Substring(0, files[lCount].LastIndexOf("\\") + 1)}{name}";
+                label2.Text = $"{(lCount + 1)}/{files.Count}";
+                listView1.Items[lCount].SubItems.Add(hex[lCount]);
+                listView1.Items[lCount].SubItems.Add(name);
+                lCount += 1;
             }
             else if(c == 0)
             {
@@ -214,19 +215,19 @@ namespace HashRenamer
                 double totSize = (long)e.UserState;
                 if (totSize <= 1024)
                 {
-                    totSizeLabel.Text = "File Size : " +  totSize.ToString() + "Bytes";
+                    totSizeLabel.Text = $"File Size : {totSize} Bytes";
                 }
                 else if ( totSize <= 1048576)
                 {
-                    totSizeLabel.Text = "File Size : " + String.Format("{0:F2}", (totSize / 1024.00)) + "KB";
+                    totSizeLabel.Text = $"File Size : {(totSize / 1024.00):F2} KB";
                 }
                 else if(totSize <= 1073741824)
                 {
-                    totSizeLabel.Text = "File Size : " + String.Format("{0:F2}", (totSize / 1048576.00)) + "MB";
+                    totSizeLabel.Text = $"File Size : {(totSize / 1048576.00):F2} MB";
                 }
                 else if (totSize > 1073741824)
                 {
-                    totSizeLabel.Text = "File Size : " + String.Format("{0:F2}", (totSize / 1073741824.00)) + "GB";
+                    totSizeLabel.Text = $"File Size : {(totSize / 1073741824.00):F2} GB";
                 }
             }
             else
@@ -234,19 +235,19 @@ namespace HashRenamer
                 double processed = (long)e.UserState;
                 if (processed <= 1024)
                 {
-                    processedLabel.Text = "Processed : " + processed.ToString() + "Bytes";
+                    processedLabel.Text = $"Processed : {processed} Bytes";
                 }
                 else if (processed <= 1048576)
                 {
-                    processedLabel.Text = "Processed : " + String.Format("{0:F2}", (processed / 1024.00)) + "KB";
+                    processedLabel.Text = $"Processed : {(processed / 1024.00):F2} KB";
                 }
                 else if (processed <= 1073741824)
                 {
-                    processedLabel.Text = "Processed : " + String.Format("{0:F2}", (processed / 1048576.00)) + "MB";
+                    processedLabel.Text = $"Processed : {(processed / 1048576.00):F2} MB";
                 }
                 else if (processed > 1073741824)
                 {
-                    processedLabel.Text = "Processed : " + String.Format("{0:F2}", (processed / 1073741824.00)) + "GB";
+                    processedLabel.Text = $"Processed : {(processed / 1073741824.00):F2} GB";
                 }
                 fileprogressBar.Value += c;
                 label1.Text = fileprogressBar.Value.ToString() + "%";
