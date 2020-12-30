@@ -31,7 +31,7 @@ namespace HashRenamer
             if (openFileDialog1.ShowDialog() == DialogResult.OK)
             {
                 files.AddRange(openFileDialog1.FileNames);
-                label2.Text = $"0/{files.Count}";
+                countLabel.Text = $"0/{files.Count}";
                 for (int i = listView1.Items.Count; i < files.Count; i++)
                 {
                     ListViewItem item = new ListViewItem(new string[] { $"00{(i + 1)}", files[i].Substring(files[i].LastIndexOf("\\")+1) });
@@ -45,6 +45,7 @@ namespace HashRenamer
             hashBtn.Enabled = false;
             selectfilesBtn.Enabled = false;
             renameBtn.Enabled = false;
+            previewButton.Enabled = false;
             hex = new string[files.Count];
             newNames = new string[files.Count];
             totprogressBar.Maximum = files.Count;
@@ -198,15 +199,10 @@ namespace HashRenamer
                     processedLabel.Text = $"Processed : {(processed / 1073741824.00):F2} GB";
                 }
                 fileprogressBar.Value = c;
-                label1.Text = $"{c}%";
+                progressLabel.Text = $"{c}%";
                 totprogressBar.Value += 1;
-                int a = files[lCount].LastIndexOf("\\") + 1;
-                int b = files[lCount].LastIndexOf(".");
-                string name = $"{files[lCount].Substring(a, b - a)} [{hex[lCount]}]{files[lCount].Substring(files[lCount].LastIndexOf("."))}";
-                newNames[lCount] = $"{files[lCount].Substring(0, files[lCount].LastIndexOf("\\") + 1)}{name}";
-                label2.Text = $"{(lCount + 1)}/{files.Count}";
+                countLabel.Text = $"{(lCount + 1)}/{files.Count}";
                 listView1.Items[lCount].SubItems.Add(hex[lCount]);
-                listView1.Items[lCount].SubItems.Add(name);
                 lCount += 1;
             }
             else if(c == 0)
@@ -250,7 +246,19 @@ namespace HashRenamer
                     processedLabel.Text = $"Processed : {(processed / 1073741824.00):F2} GB";
                 }
                 fileprogressBar.Value += c;
-                label1.Text = fileprogressBar.Value.ToString() + "%";
+                progressLabel.Text = fileprogressBar.Value.ToString() + "%";
+            }
+        }
+
+        private void previewButton_Click(object sender, EventArgs e)
+        {
+            for (int i = 0; i < files.Count; i++)
+            {
+                int a = files[i].LastIndexOf("\\") + 1;
+                int b = files[i].LastIndexOf(".");
+                string name = $"{files[i].Substring(a, b - a)} [{hex[i]}]{files[i].Substring(files[i].LastIndexOf("."))}";
+                newNames[i] = $"{files[i].Substring(0, files[i].LastIndexOf("\\") + 1)}{name}";
+                listView1.Items[i].SubItems.Add(name);
             }
         }
 
@@ -282,8 +290,8 @@ namespace HashRenamer
             {
                 fileprogressBar.Value = 100;
                 totprogressBar.Value = totprogressBar.Maximum;
-                label1.Text = "%";
-                label2.Text = "-/-";
+                progressLabel.Text = "%";
+                countLabel.Text = "-/-";
             }
         }
 
