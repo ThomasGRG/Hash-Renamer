@@ -49,6 +49,8 @@
             this.speedLabel = new System.Windows.Forms.Label();
             this.pauseButton = new System.Windows.Forms.Button();
             this.previewButton = new System.Windows.Forms.Button();
+            this.endRadioButton = new System.Windows.Forms.RadioButton();
+            this.startRadioButton = new System.Windows.Forms.RadioButton();
             this.SuspendLayout();
             // 
             // listView1
@@ -262,12 +264,40 @@
             this.previewButton.UseVisualStyleBackColor = true;
             this.previewButton.Click += new System.EventHandler(this.previewButton_Click);
             // 
+            // endRadioButton
+            // 
+            this.endRadioButton.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
+            this.endRadioButton.AutoSize = true;
+            this.endRadioButton.Checked = true;
+            this.endRadioButton.ForeColor = System.Drawing.Color.White;
+            this.endRadioButton.Location = new System.Drawing.Point(958, 321);
+            this.endRadioButton.Name = "endRadioButton";
+            this.endRadioButton.Size = new System.Drawing.Size(44, 17);
+            this.endRadioButton.TabIndex = 22;
+            this.endRadioButton.TabStop = true;
+            this.endRadioButton.Text = "End";
+            this.endRadioButton.UseVisualStyleBackColor = true;
+            // 
+            // startRadioButton
+            // 
+            this.startRadioButton.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
+            this.startRadioButton.AutoSize = true;
+            this.startRadioButton.ForeColor = System.Drawing.Color.White;
+            this.startRadioButton.Location = new System.Drawing.Point(890, 321);
+            this.startRadioButton.Name = "startRadioButton";
+            this.startRadioButton.Size = new System.Drawing.Size(47, 17);
+            this.startRadioButton.TabIndex = 23;
+            this.startRadioButton.Text = "Start";
+            this.startRadioButton.UseVisualStyleBackColor = true;
+            // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(25)))), ((int)(((byte)(25)))), ((int)(((byte)(25)))));
             this.ClientSize = new System.Drawing.Size(1015, 461);
+            this.Controls.Add(this.startRadioButton);
+            this.Controls.Add(this.endRadioButton);
             this.Controls.Add(this.previewButton);
             this.Controls.Add(this.pauseButton);
             this.Controls.Add(this.speedLabel);
@@ -313,6 +343,8 @@
         private System.Windows.Forms.Label speedLabel;
         private System.Windows.Forms.Button pauseButton;
         private System.Windows.Forms.Button previewButton;
+        private System.Windows.Forms.RadioButton endRadioButton;
+        private System.Windows.Forms.RadioButton startRadioButton;
     }
 }
 
