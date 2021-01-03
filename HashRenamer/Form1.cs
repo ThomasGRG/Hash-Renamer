@@ -12,13 +12,14 @@ namespace HashRenamer
     {
         Timer timer = new Timer();
         Stopwatch stopWatch = new Stopwatch();
+        Crc32Algorithm crc32;
         List<string> files = new List<string>();
         string[] newNames;
-        bool cancel = false, fRun = true;
+        bool cancel = false, fRun = true; //boolean to check first run, cancelled or not
         string[] hex;
-        int fCount = 0, lCount = 0;
-        long tmp1, tmp2;
-        string cSel;
+        int fCount = 0, lCount = 0, p = 0; //fileCount, listCount, progressCounter
+        long tmp1, tmp2, totalBytesRead = 0;
+        string cSel, state = "unknown"; //cSel to store currently selected radiobutton
 
         public Form1()
         {
@@ -47,6 +48,7 @@ namespace HashRenamer
             selectfilesBtn.Enabled = false;
             renameBtn.Enabled = false;
             previewButton.Enabled = false;
+            pauseButton.Enabled = true;
             hex = new string[files.Count];
             newNames = new string[files.Count];
             totprogressBar.Maximum = files.Count;
@@ -54,6 +56,11 @@ namespace HashRenamer
             stopWatch.Start();
             timer.Start();
             timer.Enabled = true;
+            runWorker();
+        }
+
+        private void runWorker()
+        {
             backgroundWorker1.RunWorkerAsync();
         }
 
@@ -84,30 +91,28 @@ namespace HashRenamer
         {
             BackgroundWorker worker = sender as BackgroundWorker;
 
-            for (int i = 0; i < files.Count; i++)
+            for (int i = fCount; i < files.Count; i++)
             {
                 if (worker.CancellationPending == true)
                 {
                     e.Cancel = true;
                     break;
                 }
-                var crc32 = new Crc32Algorithm();
+
                 FileStream stream = File.OpenRead(files[i]);
-                
+
                 byte[] hash = null;
                 string cHex = "";
                 bool flag = true;
-                int p = 0;
-                int _bufferSize = 4096;
+                int bufferSize = 4096;
 
                 byte[] readAheadBuffer, buffer;
                 int readAheadBytesRead, bytesRead;
-                long size, cnt = 0, totalBytesRead = 0;
+                long size, cnt = 0;
 
                 size = stream.Length;
-                worker.ReportProgress(0, size);
-                cnt = size / Convert.ToInt64(_bufferSize);
-                if(cnt <= 100)
+                cnt = size / Convert.ToInt64(bufferSize);
+                if (cnt <= 100)
                 {
                     cnt = (100 / (cnt + 1));
                     flag = false;
@@ -116,18 +121,25 @@ namespace HashRenamer
                 {
                     cnt = (cnt / 100) + 1;
                 }
-                readAheadBuffer = new byte[_bufferSize];
-                readAheadBytesRead = stream.Read(readAheadBuffer, 0, readAheadBuffer.Length);
 
+                stream.Position = totalBytesRead;
+                readAheadBuffer = new byte[bufferSize];
+                readAheadBytesRead = stream.Read(readAheadBuffer, 0, readAheadBuffer.Length);
                 totalBytesRead += readAheadBytesRead;
                 tmp1 = tmp2 = totalBytesRead;
+
+                if (state == "unknown")
+                {
+                    crc32 = new Crc32Algorithm();
+                    worker.ReportProgress(0, size);
+                }
 
                 do
                 {
                     bytesRead = readAheadBytesRead;
                     buffer = readAheadBuffer;
 
-                    readAheadBuffer = new byte[_bufferSize];
+                    readAheadBuffer = new byte[bufferSize];
                     readAheadBytesRead = stream.Read(readAheadBuffer, 0, readAheadBuffer.Length);
 
                     totalBytesRead += readAheadBytesRead;
@@ -150,13 +162,9 @@ namespace HashRenamer
                     {
                         worker.ReportProgress(Convert.ToInt32(cnt), totalBytesRead);
                     }
-                } while (readAheadBytesRead != 0 && !cancel);
+                } while (readAheadBytesRead != 0 && !cancel && state != "paused");
 
-                if (cancel)
-                {
-                    hash = null;
-                }
-                else
+                if (cancel == false && state!= "paused")
                 {
                     hash = crc32.Hash;
                     foreach (byte b in hash)
@@ -165,8 +173,11 @@ namespace HashRenamer
                     fCount += 1;
                     worker.ReportProgress(100, size);
                 }
-                
-                crc32.Dispose();
+
+                if (state != "paused")
+                {
+                    crc32.Dispose();
+                }
                 stream.Dispose();
             }
         }
@@ -175,6 +186,32 @@ namespace HashRenamer
         {
             cancel = true;
             backgroundWorker1.CancelAsync();
+        }
+
+        private void pauseButton_Click(object sender, EventArgs e)
+        {
+            if (state == "paused")
+            {
+                timer.Start();
+                stopWatch.Start();
+                state = "resumed";
+                pauseButton.Text = "Pause";
+                runWorker();
+            }
+            else if (state == "resumed")
+            {
+                timer.Stop();
+                stopWatch.Stop();
+                state = "paused";
+                pauseButton.Text = "Resume";
+            }
+            else if (state == "unknown")
+            {
+                timer.Stop();
+                stopWatch.Stop();
+                state = "paused";
+                pauseButton.Text = "Resume";
+            }
         }
 
         private void backgroundWorker1_ProgressChanged(object sender, ProgressChangedEventArgs e)
@@ -326,18 +363,26 @@ namespace HashRenamer
 
         private void backgroundWorker1_RunWorkerCompleted(object sender, RunWorkerCompletedEventArgs e)
         {
-            stopWatch.Stop();
-            timer.Stop();
-            hashBtn.Enabled = true;
-            selectfilesBtn.Enabled = true;
-            renameBtn.Enabled = true;
-            previewButton.Enabled = true;
-            if (cancel)
+            if (state == "resumed" || state == "unknown")
             {
-                fileprogressBar.Value = 100;
-                totprogressBar.Value = totprogressBar.Maximum;
-                progressLabel.Text = "%";
-                countLabel.Text = "-/-";
+                stopWatch.Stop();
+                timer.Stop();
+                hashBtn.Enabled = true;
+                selectfilesBtn.Enabled = true;
+                renameBtn.Enabled = true;
+                previewButton.Enabled = true;
+                pauseButton.Enabled = false;
+                if (cancel)
+                {
+                    fileprogressBar.Value = 100;
+                    totprogressBar.Value = totprogressBar.Maximum;
+                    progressLabel.Text = "%";
+                    countLabel.Text = "-/-";
+                }
+            }
+            else if (state == "paused")
+            {
+                totalBytesRead -= 4096;
             }
         }
 

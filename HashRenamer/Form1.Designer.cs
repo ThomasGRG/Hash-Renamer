@@ -244,6 +244,7 @@
             // pauseButton
             // 
             this.pauseButton.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
+            this.pauseButton.Enabled = false;
             this.pauseButton.FlatStyle = System.Windows.Forms.FlatStyle.System;
             this.pauseButton.Location = new System.Drawing.Point(182, 414);
             this.pauseButton.Name = "pauseButton";
@@ -251,6 +252,7 @@
             this.pauseButton.TabIndex = 20;
             this.pauseButton.Text = "Pause";
             this.pauseButton.UseVisualStyleBackColor = true;
+            this.pauseButton.Click += new System.EventHandler(this.pauseButton_Click);
             // 
             // previewButton
             // 
