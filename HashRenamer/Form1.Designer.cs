@@ -51,6 +51,7 @@
             this.previewButton = new System.Windows.Forms.Button();
             this.endRadioButton = new System.Windows.Forms.RadioButton();
             this.startRadioButton = new System.Windows.Forms.RadioButton();
+            this.remainingLabel = new System.Windows.Forms.Label();
             this.SuspendLayout();
             // 
             // listView1
@@ -213,7 +214,7 @@
             this.totSizeLabel.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
             this.totSizeLabel.AutoSize = true;
             this.totSizeLabel.ForeColor = System.Drawing.SystemColors.Info;
-            this.totSizeLabel.Location = new System.Drawing.Point(193, 323);
+            this.totSizeLabel.Location = new System.Drawing.Point(230, 323);
             this.totSizeLabel.Name = "totSizeLabel";
             this.totSizeLabel.Size = new System.Drawing.Size(61, 13);
             this.totSizeLabel.TabIndex = 17;
@@ -224,7 +225,7 @@
             this.processedLabel.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
             this.processedLabel.AutoSize = true;
             this.processedLabel.ForeColor = System.Drawing.SystemColors.Info;
-            this.processedLabel.Location = new System.Drawing.Point(310, 323);
+            this.processedLabel.Location = new System.Drawing.Point(384, 323);
             this.processedLabel.Name = "processedLabel";
             this.processedLabel.Size = new System.Drawing.Size(72, 13);
             this.processedLabel.TabIndex = 18;
@@ -235,7 +236,7 @@
             this.speedLabel.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
             this.speedLabel.AutoSize = true;
             this.speedLabel.ForeColor = System.Drawing.SystemColors.Info;
-            this.speedLabel.Location = new System.Drawing.Point(438, 323);
+            this.speedLabel.Location = new System.Drawing.Point(549, 323);
             this.speedLabel.Name = "speedLabel";
             this.speedLabel.Size = new System.Drawing.Size(53, 13);
             this.speedLabel.TabIndex = 19;
@@ -292,12 +293,25 @@
             this.startRadioButton.Text = "Start";
             this.startRadioButton.UseVisualStyleBackColor = true;
             // 
+            // remainingLabel
+            // 
+            this.remainingLabel.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
+            this.remainingLabel.AutoSize = true;
+            this.remainingLabel.ForeColor = System.Drawing.SystemColors.Info;
+            this.remainingLabel.Location = new System.Drawing.Point(695, 323);
+            this.remainingLabel.Name = "remainingLabel";
+            this.remainingLabel.Size = new System.Drawing.Size(134, 13);
+            this.remainingLabel.TabIndex = 24;
+            this.remainingLabel.Text = "Remaining Time : 00:00:00";
+            // 
             // Form1
             // 
+            this.AllowDrop = true;
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(25)))), ((int)(((byte)(25)))), ((int)(((byte)(25)))));
             this.ClientSize = new System.Drawing.Size(1015, 461);
+            this.Controls.Add(this.remainingLabel);
             this.Controls.Add(this.startRadioButton);
             this.Controls.Add(this.endRadioButton);
             this.Controls.Add(this.previewButton);
@@ -318,6 +332,9 @@
             this.MinimumSize = new System.Drawing.Size(1030, 500);
             this.Name = "Form1";
             this.Text = "Hash Renamer";
+            this.Shown += new System.EventHandler(this.Form1_Shown);
+            this.DragDrop += new System.Windows.Forms.DragEventHandler(this.Form1_DragDrop);
+            this.DragEnter += new System.Windows.Forms.DragEventHandler(this.Form1_DragEnter);
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -347,6 +364,7 @@
         private System.Windows.Forms.Button previewButton;
         private System.Windows.Forms.RadioButton endRadioButton;
         private System.Windows.Forms.RadioButton startRadioButton;
+        private System.Windows.Forms.Label remainingLabel;
     }
 }
 

@@ -15,10 +15,10 @@ namespace HashRenamer
         Crc32Algorithm crc32;
         List<string> files = new List<string>();
         string[] newNames;
-        bool cancel = false, fRun = true; //boolean to check first run, cancelled or not
+        bool cancel = false, fRun = true; //boolean to check first run of preview, cancelled or not
         string[] hex;
         int fCount = 0, lCount = 0, p = 0; //fileCount, listCount, progressCounter
-        long tmp1, tmp2, totalBytesRead = 0;
+        long tmp1, tmp2, size, totalBytesRead = 0;
         string cSel, state = "unknown"; //cSel to store currently selected radiobutton
 
         public Form1()
@@ -32,13 +32,7 @@ namespace HashRenamer
         {
             if (openFileDialog1.ShowDialog() == DialogResult.OK)
             {
-                files.AddRange(openFileDialog1.FileNames);
-                countLabel.Text = $"0/{files.Count}";
-                for (int i = listView1.Items.Count; i < files.Count; i++)
-                {
-                    ListViewItem item = new ListViewItem(new string[] { $"00{(i + 1)}", files[i].Substring(files[i].LastIndexOf("\\")+1) });
-                    listView1.Items.Add(item);
-                }
+                addFiles(openFileDialog1.FileNames);
             }
         }
 
@@ -59,6 +53,17 @@ namespace HashRenamer
             runWorker();
         }
 
+        private void addFiles(string[] fList)
+        {
+            files.AddRange(fList);
+            countLabel.Text = $"{fCount}/{files.Count}";
+            for (int i = listView1.Items.Count; i < files.Count; i++)
+            {
+                ListViewItem item = new ListViewItem(new string[] { $"00{(i + 1)}", files[i].Substring(files[i].LastIndexOf("\\") + 1) });
+                listView1.Items.Add(item);
+            }
+        }
+
         private void runWorker()
         {
             backgroundWorker1.RunWorkerAsync();
@@ -69,6 +74,8 @@ namespace HashRenamer
             elapsedLabel.Text = $"Elapsed Time : {stopWatch.Elapsed.Hours:00}:{stopWatch.Elapsed.Minutes:00}:{stopWatch.Elapsed.Seconds:00}";
             long tmp = tmp1 - tmp2;
             tmp2 += tmp;
+            TimeSpan t = TimeSpan.FromSeconds((size - totalBytesRead)/tmp);
+            remainingLabel.Text = $"Remaining Time : {t.Hours:00}:{t.Minutes:00}:{t.Seconds:00}";
             if (tmp  <= 1024)
             {
                 speedLabel.Text = $"Speed : {tmp} Bytes/s";
@@ -87,12 +94,52 @@ namespace HashRenamer
             }
         }
 
+        private void Form1_Shown(object sender, EventArgs e)
+        {
+            string[] args = Environment.GetCommandLineArgs();
+            if (args.Length > 1)
+            {
+                List<string> paras = new List<string>(args);
+                paras.RemoveAt(0);
+                for (int i = paras.Count - 1; i >= 0; i--)
+                {
+                    if (!File.Exists(paras[i]))
+                    {
+                        paras.RemoveAt(i);
+                    }
+                }
+                if (paras.Count > 0)
+                {
+                    args = paras.ToArray();
+                    addFiles(args);
+                }
+            }
+        }
+
+        private void Form1_DragEnter(object sender, DragEventArgs e)
+        {
+            if (e.Data.GetDataPresent(DataFormats.FileDrop))
+                e.Effect = DragDropEffects.All;
+            else
+                e.Effect = DragDropEffects.None;
+        }
+
+        private void Form1_DragDrop(object sender, DragEventArgs e)
+        {
+            string[] s = (string[])e.Data.GetData(DataFormats.FileDrop, false);
+            addFiles(s);
+        }
+
         private void backgroundWorker1_DoWork(object sender, System.ComponentModel.DoWorkEventArgs e)
         {
             BackgroundWorker worker = sender as BackgroundWorker;
 
             for (int i = fCount; i < files.Count; i++)
             {
+                if (state == "paused")
+                {
+                    break;
+                }
                 if (worker.CancellationPending == true)
                 {
                     e.Cancel = true;
@@ -108,7 +155,7 @@ namespace HashRenamer
 
                 byte[] readAheadBuffer, buffer;
                 int readAheadBytesRead, bytesRead;
-                long size, cnt = 0;
+                long cnt = 0;
 
                 size = stream.Length;
                 cnt = size / Convert.ToInt64(bufferSize);
@@ -172,6 +219,9 @@ namespace HashRenamer
                     hex[fCount] = cHex.ToUpper();
                     fCount += 1;
                     worker.ReportProgress(100, size);
+                    totalBytesRead = 0;
+                    p = 0;
+                    state = "unknown";
                 }
 
                 if (state != "paused")
