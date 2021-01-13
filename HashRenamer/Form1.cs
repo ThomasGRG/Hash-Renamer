@@ -13,13 +13,17 @@ namespace HashRenamer
         Timer timer = new Timer();
         Stopwatch stopWatch = new Stopwatch();
         Crc32Algorithm crc32;
-        List<string> files = new List<string>();
-        string[] newNames;
-        bool cancel = false, fRun = true; //boolean to check first run of preview, cancelled or not
-        string[] hex;
-        int fCount = 0, lCount = 0, p = 0; //fileCount, listCount, progressCounter
+        List<itemClass> files = new List<itemClass>();
+
+        //boolean to check cancelled, skip, first run of preview
+        bool cancel = false, skip = false, fRun = true;
+        
+        //fileCount, listCount, previewedCount, renamedCount, progressCounter
+        int fCount = 0, lCount = 0, pCount = 0, rCount = 0, p = 0;
         long tmp1, tmp2, size, totalBytesRead = 0;
-        string cSel, state = "unknown"; //cSel to store currently selected radiobutton
+        
+        //cSel to store previously run preview option, state for pause/resume
+        string cSel, state = "unknown";
 
         public Form1()
         {
@@ -34,6 +38,7 @@ namespace HashRenamer
             {
                 addFiles(openFileDialog1.FileNames);
             }
+            hashBtn.Enabled = true;
         }
 
         private void hashBtn_Click(object sender, EventArgs e)
@@ -43,8 +48,8 @@ namespace HashRenamer
             renameBtn.Enabled = false;
             previewButton.Enabled = false;
             pauseButton.Enabled = true;
-            hex = new string[files.Count];
-            newNames = new string[files.Count];
+            skipButton.Enabled = true;
+            cancelBtn.Enabled = true;
             totprogressBar.Maximum = files.Count;
             fileprogressBar.Maximum = 100;
             stopWatch.Start();
@@ -55,13 +60,19 @@ namespace HashRenamer
 
         private void addFiles(string[] fList)
         {
-            files.AddRange(fList);
+            foreach (var item in fList)
+            {
+                string name = item.Substring(item.LastIndexOf("\\") + 1);
+                itemClass obj = new itemClass(item, name);
+                files.Add(obj);
+            }
             countLabel.Text = $"{fCount}/{files.Count}";
             for (int i = listView1.Items.Count; i < files.Count; i++)
             {
-                ListViewItem item = new ListViewItem(new string[] { $"00{(i + 1)}", files[i].Substring(files[i].LastIndexOf("\\") + 1) });
+                ListViewItem item = new ListViewItem(new string[] { $"00{(i + 1)}", "Queued", files[i].currentName, "", "" });
                 listView1.Items.Add(item);
             }
+            fRun = true;
         }
 
         private void runWorker()
@@ -100,6 +111,7 @@ namespace HashRenamer
             if (args.Length > 1)
             {
                 List<string> paras = new List<string>(args);
+                // Remove first item since it is exe path
                 paras.RemoveAt(0);
                 for (int i = paras.Count - 1; i >= 0; i--)
                 {
@@ -112,8 +124,44 @@ namespace HashRenamer
                 {
                     args = paras.ToArray();
                     addFiles(args);
+                    hashBtn.Enabled = true;
                 }
             }
+        }
+
+        private void itemContextMenu_Opening(object sender, CancelEventArgs e)
+        {
+            if (listView1.SelectedIndices.Count > 0)
+            {
+                itemContextMenu.Items[1].Visible = true;
+            }
+            else
+            {
+                itemContextMenu.Items[1].Visible = false;
+            }
+        }
+
+        private void addMenuItem_Click(object sender, EventArgs e)
+        {
+            if (openFileDialog1.ShowDialog() == DialogResult.OK)
+            {
+                addFiles(openFileDialog1.FileNames);
+            }
+            hashBtn.Enabled = true;
+        }
+
+        private void skipMenuItem_Click(object sender, EventArgs e)
+        {
+            for (int i = 0; i < listView1.SelectedIndices.Count; i++)
+            {
+                files[listView1.SelectedIndices[i]].skip = true;
+                listView1.Items[listView1.SelectedIndices[i]].SubItems[1].Text = "Skipped";
+            }
+        }
+
+        private void skipButton_Click(object sender, EventArgs e)
+        {
+            skip = true;
         }
 
         private void Form1_DragEnter(object sender, DragEventArgs e)
@@ -128,6 +176,7 @@ namespace HashRenamer
         {
             string[] s = (string[])e.Data.GetData(DataFormats.FileDrop, false);
             addFiles(s);
+            hashBtn.Enabled = true;
         }
 
         private void backgroundWorker1_DoWork(object sender, System.ComponentModel.DoWorkEventArgs e)
@@ -140,13 +189,19 @@ namespace HashRenamer
                 {
                     break;
                 }
-                if (worker.CancellationPending == true)
+                if (worker.CancellationPending == true || cancel == true)
                 {
                     e.Cancel = true;
                     break;
                 }
+                else if(files[i].skip == true)
+                {
+                    fCount += 1;
+                    worker.ReportProgress(-1);
+                    continue;
+                }
 
-                FileStream stream = File.OpenRead(files[i]);
+                FileStream stream = File.OpenRead(files[i].currentFilePath);
 
                 byte[] hash = null;
                 string cHex = "";
@@ -209,19 +264,26 @@ namespace HashRenamer
                     {
                         worker.ReportProgress(Convert.ToInt32(cnt), totalBytesRead);
                     }
-                } while (readAheadBytesRead != 0 && !cancel && state != "paused");
+                } while (readAheadBytesRead != 0 && !cancel && state != "paused" && skip == false);
 
-                if (cancel == false && state!= "paused")
+                if (cancel == false && state!= "paused" && skip == false)
                 {
                     hash = crc32.Hash;
                     foreach (byte b in hash)
                         cHex += b.ToString("x2");
-                    hex[fCount] = cHex.ToUpper();
+                    files[fCount].hash = cHex.ToUpper();
                     fCount += 1;
                     worker.ReportProgress(100, size);
                     totalBytesRead = 0;
                     p = 0;
                     state = "unknown";
+                }
+
+                if (skip)
+                {
+                    files[fCount].skip = true;
+                    fCount += 1;
+                    worker.ReportProgress(-1);
                 }
 
                 if (state != "paused")
@@ -234,8 +296,40 @@ namespace HashRenamer
 
         private void cancelBtn_Click(object sender, EventArgs e)
         {
-            cancel = true;
-            backgroundWorker1.CancelAsync();
+            if (state == "paused")
+            {
+                for (int i = lCount; i < files.Count; i++)
+                {
+                    listView1.Items[i].SubItems[1].Text = "Cancelled";
+                }
+                elapsedLabel.Text = "Elapsed Time : 00:00:00";
+                remainingLabel.Text = "Remaining Time : 00:00:00";
+                speedLabel.Text = "Speed : 0";
+                processedLabel.Text = "Processed : 0";
+                totSizeLabel.Text = "File Size : 0";
+                crc32.Dispose();
+                fCount = lCount = p = 0;
+                state = "unknown";
+                tmp1 = tmp2 = size = totalBytesRead = 0;
+                cancel = true;
+                stopWatch.Reset();
+                timer.Stop();
+                hashBtn.Enabled = true;
+                selectfilesBtn.Enabled = true;
+                renameBtn.Enabled = true;
+                previewButton.Enabled = true;
+                pauseButton.Enabled = false;
+                skipButton.Enabled = false;
+                fileprogressBar.Value = 100;
+                totprogressBar.Value = totprogressBar.Maximum;
+                progressLabel.Text = "%";
+                countLabel.Text = "-/-";
+            }
+            else
+            {
+                cancel = true;
+                backgroundWorker1.CancelAsync();
+            }
         }
 
         private void pauseButton_Click(object sender, EventArgs e)
@@ -267,7 +361,7 @@ namespace HashRenamer
         private void backgroundWorker1_ProgressChanged(object sender, ProgressChangedEventArgs e)
         {
             int c = e.ProgressPercentage;
-            if(c == 100)
+            if (c == 100)
             {
                 double processed = (long)e.UserState;
                 if (processed <= 1024)
@@ -290,10 +384,20 @@ namespace HashRenamer
                 progressLabel.Text = $"{c}%";
                 totprogressBar.Value += 1;
                 countLabel.Text = $"{(lCount + 1)}/{files.Count}";
-                listView1.Items[lCount].SubItems.Add(hex[lCount]);
+                listView1.Items[lCount].SubItems[3].Text = (files[lCount].hash);
+                listView1.Items[lCount].SubItems[1].Text = "Completed";
                 lCount += 1;
             }
-            else if(c == 0)
+            else if (c == -1)
+            {
+                listView1.Items[lCount].SubItems[1].Text = "Skipped";
+                fileprogressBar.Value = 100;
+                progressLabel.Text = "100%";
+                totprogressBar.Value += 1;
+                countLabel.Text = $"{(lCount + 1)}/{files.Count}";
+                lCount += 1;
+            }
+            else if (c == 0)
             {
                 fileprogressBar.Value = 0;
                 double totSize = (long)e.UserState;
@@ -301,11 +405,11 @@ namespace HashRenamer
                 {
                     totSizeLabel.Text = $"File Size : {totSize} Bytes";
                 }
-                else if ( totSize <= 1048576)
+                else if (totSize <= 1048576)
                 {
                     totSizeLabel.Text = $"File Size : {(totSize / 1024.00):F2} KB";
                 }
-                else if(totSize <= 1073741824)
+                else if (totSize <= 1073741824)
                 {
                     totSizeLabel.Text = $"File Size : {(totSize / 1048576.00):F2} MB";
                 }
@@ -340,73 +444,118 @@ namespace HashRenamer
 
         private void previewButton_Click(object sender, EventArgs e)
         {
-            if (fRun == true)
+            if (!cancel)
             {
-                if (endRadioButton.Checked == true)
+                if ((endRadioButton.Checked == true && cSel == "Start") || (startRadioButton.Checked == true && cSel == "End"))
                 {
-                    for (int i = 0; i < files.Count; i++)
-                    {
-                        int a = files[i].LastIndexOf("\\") + 1;
-                        int b = files[i].LastIndexOf(".");
-                        string name = $"{files[i].Substring(a, b - a)} [{hex[i]}]{files[i].Substring(files[i].LastIndexOf("."))}";
-                        newNames[i] = $"{files[i].Substring(0, files[i].LastIndexOf("\\") + 1)}{name}";
-                        listView1.Items[i].SubItems.Add(name);
-                    }
-                    fRun = false;
-                    cSel = "End";
+                    pCount = 0;
+                    rCount = 0;
                 }
-                else if (startRadioButton.Checked == true)
+                if (fRun == true)
                 {
-                    for (int i = 0; i < files.Count; i++)
+                    if (endRadioButton.Checked == true)
                     {
-                        string name = $"[{hex[i]}] {files[i].Substring(files[i].LastIndexOf("\\") + 1)}";
-                        newNames[i] = $"{files[i].Substring(0, files[i].LastIndexOf("\\") + 1)}{name}";
-                        listView1.Items[i].SubItems.Add(name);
+                        for (int i = pCount; i < files.Count; i++)
+                        {
+                            if (files[i].skip == true)
+                            {
+                                pCount += 1;
+                                continue;
+                            }
+                            int a = files[i].currentFilePath.LastIndexOf("\\") + 1;
+                            int b = files[i].currentFilePath.LastIndexOf(".");
+                            files[i].newName = $"{files[i].currentFilePath.Substring(a, b - a)} [{files[i].hash}]{files[i].currentFilePath.Substring(files[i].currentFilePath.LastIndexOf("."))}";
+                            files[i].newFilePath = $"{files[i].currentFilePath.Substring(0, files[i].currentFilePath.LastIndexOf("\\") + 1)}{files[i].newName}";
+                            listView1.Items[i].SubItems[4].Text = files[i].newName;
+                            pCount += 1;
+                        }
+                        fRun = false;
+                        cSel = "End";
                     }
-                    fRun = false;
-                    cSel = "Start";
+                    else if (startRadioButton.Checked == true)
+                    {
+                        for (int i = pCount; i < files.Count; i++)
+                        {
+                            if (files[i].skip == true)
+                            {
+                                pCount += 1;
+                                continue;
+                            }
+                            files[i].newName = $"[{files[i].hash}] {files[i].currentFilePath.Substring(files[i].currentFilePath.LastIndexOf("\\") + 1)}";
+                            files[i].newFilePath = $"{files[i].currentFilePath.Substring(0, files[i].currentFilePath.LastIndexOf("\\") + 1)}{files[i].newName}";
+                            listView1.Items[i].SubItems[4].Text = files[i].newName;
+                            pCount += 1;
+                        }
+                        fRun = false;
+                        cSel = "Start";
+                    }
                 }
-            }
-            else
-            {
-                if (endRadioButton.Checked == true && cSel != "End")
+                else
                 {
-                    for (int i = 0; i < files.Count; i++)
+                    if (endRadioButton.Checked == true && cSel != "End")
                     {
-                        int a = files[i].LastIndexOf("\\") + 1;
-                        int b = files[i].LastIndexOf(".");
-                        string name = $"{files[i].Substring(a, b - a)} [{hex[i]}]{files[i].Substring(files[i].LastIndexOf("."))}";
-                        newNames[i] = $"{files[i].Substring(0, files[i].LastIndexOf("\\") + 1)}{name}";
-                        listView1.Items[i].SubItems[3].Text = name;
+                        for (int i = pCount; i < files.Count; i++)
+                        {
+                            if (files[i].skip == true)
+                            {
+                                pCount += 1;
+                                continue;
+                            }
+                            int a = files[i].currentFilePath.LastIndexOf("\\") + 1;
+                            int b = files[i].currentFilePath.LastIndexOf(".");
+                            files[i].newName = $"{files[i].currentFilePath.Substring(a, b - a)} [{files[i].hash}]{files[i].currentFilePath.Substring(files[i].currentFilePath.LastIndexOf("."))}";
+                            files[i].newFilePath = $"{files[i].currentFilePath.Substring(0, files[i].currentFilePath.LastIndexOf("\\") + 1)}{files[i].newName}";
+                            listView1.Items[i].SubItems[4].Text = files[i].newName;
+                            pCount += 1;
+                        }
+                        cSel = "End";
                     }
-                    cSel = "End";
-                }
-                else if (startRadioButton.Checked == true && cSel != "Start")
-                {
-                    for (int i = 0; i < files.Count; i++)
+                    else if (startRadioButton.Checked == true && cSel != "Start")
                     {
-                        string name = $"[{hex[i]}] {files[i].Substring(files[i].LastIndexOf("\\") + 1)}";
-                        newNames[i] = $"{files[i].Substring(0, files[i].LastIndexOf("\\") + 1)}{name}";
-                        listView1.Items[i].SubItems[3].Text = name;
+                        for (int i = pCount; i < files.Count; i++)
+                        {
+                            if (files[i].skip == true)
+                            {
+                                pCount += 1;
+                                continue;
+                            }
+                            files[i].newName = $"[{files[i].hash}] {files[i].currentFilePath.Substring(files[i].currentFilePath.LastIndexOf("\\") + 1)}";
+                            files[i].newFilePath = $"{files[i].currentFilePath.Substring(0, files[i].currentFilePath.LastIndexOf("\\") + 1)}{files[i].newName}";
+                            listView1.Items[i].SubItems[4].Text = files[i].newName;
+                            pCount += 1;
+                        }
+                        cSel = "Start";
                     }
-                    cSel = "Start";
                 }
             }
         }
 
         private void renameBtn_Click(object sender, EventArgs e)
         {
-            for (int i = 0; i < files.Count; i++)
+            if (!cancel)
             {
-                try
+                for (int i = rCount; i < files.Count; i++)
                 {
-                    File.Move(files[i], newNames[i]);
-                    listView1.Items[i].ForeColor = System.Drawing.Color.LightGreen;
-                }
-                catch (Exception ex)
-                {
-                    listView1.Items[i].ForeColor = System.Drawing.Color.Red;
-                    listView1.Items[i].ToolTipText = ex.Message;
+                    if (files[i].skip == true)
+                    {
+                        rCount += 1;
+                        continue;
+                    }
+                    try
+                    {
+                        File.Move(files[i].currentFilePath, files[i].newFilePath);
+                        listView1.Items[i].ForeColor = System.Drawing.Color.LightGreen;
+                    }
+                    catch (Exception ex)
+                    {
+                        listView1.Items[i].ForeColor = System.Drawing.Color.Red;
+                        listView1.Items[i].ToolTipText = ex.Message;
+                        rCount += 1;
+                        continue;
+                    }
+                    files[i].currentFilePath = files[i].newFilePath;
+                    files[i].newFilePath = "";
+                    rCount += 1;
                 }
             }
         }
@@ -422,8 +571,23 @@ namespace HashRenamer
                 renameBtn.Enabled = true;
                 previewButton.Enabled = true;
                 pauseButton.Enabled = false;
+                skipButton.Enabled = false;
                 if (cancel)
                 {
+                    for (int i = lCount; i < files.Count; i++)
+                    {
+                        listView1.Items[i].SubItems[1].Text = "Cancelled";
+                    }
+                    cancel = false;
+                    fCount = lCount = p = 0;
+                    state = "unknown";
+                    tmp1 = tmp2 = size = totalBytesRead = 0;
+                    elapsedLabel.Text = "Elapsed Time : 00:00:00";
+                    remainingLabel.Text = "Remaining Time : 00:00:00";
+                    speedLabel.Text = "Speed : 0";
+                    processedLabel.Text = "Processed : 0";
+                    totSizeLabel.Text = "File Size : 0";
+                    stopWatch.Reset();
                     fileprogressBar.Value = 100;
                     totprogressBar.Value = totprogressBar.Maximum;
                     progressLabel.Text = "%";

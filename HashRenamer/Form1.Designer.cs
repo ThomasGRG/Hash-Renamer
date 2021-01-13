@@ -28,11 +28,16 @@
         /// </summary>
         private void InitializeComponent()
         {
+            this.components = new System.ComponentModel.Container();
             this.listView1 = new System.Windows.Forms.ListView();
-            this.columnHeader1 = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
-            this.columnHeader2 = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
-            this.columnHeader3 = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
-            this.columnHeader4 = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
+            this.nColumnHeader = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
+            this.statusColumnHeader = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
+            this.currentNameColumnHeader = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
+            this.hashColumnHeader = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
+            this.newNameColumnHeader = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
+            this.itemContextMenu = new System.Windows.Forms.ContextMenuStrip(this.components);
+            this.addMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.skipMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.openFileDialog1 = new System.Windows.Forms.OpenFileDialog();
             this.backgroundWorker1 = new System.ComponentModel.BackgroundWorker();
             this.totprogressBar = new System.Windows.Forms.ProgressBar();
@@ -52,6 +57,8 @@
             this.endRadioButton = new System.Windows.Forms.RadioButton();
             this.startRadioButton = new System.Windows.Forms.RadioButton();
             this.remainingLabel = new System.Windows.Forms.Label();
+            this.skipButton = new System.Windows.Forms.Button();
+            this.itemContextMenu.SuspendLayout();
             this.SuspendLayout();
             // 
             // listView1
@@ -62,40 +69,72 @@
             this.listView1.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(32)))), ((int)(((byte)(32)))), ((int)(((byte)(32)))));
             this.listView1.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
             this.listView1.Columns.AddRange(new System.Windows.Forms.ColumnHeader[] {
-            this.columnHeader1,
-            this.columnHeader2,
-            this.columnHeader3,
-            this.columnHeader4});
+            this.nColumnHeader,
+            this.statusColumnHeader,
+            this.currentNameColumnHeader,
+            this.hashColumnHeader,
+            this.newNameColumnHeader});
+            this.listView1.ContextMenuStrip = this.itemContextMenu;
             this.listView1.Font = new System.Drawing.Font("Microsoft Sans Serif", 10F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.listView1.ForeColor = System.Drawing.SystemColors.Info;
+            this.listView1.FullRowSelect = true;
             this.listView1.Location = new System.Drawing.Point(12, 12);
-            this.listView1.MultiSelect = false;
             this.listView1.Name = "listView1";
             this.listView1.ShowItemToolTips = true;
-            this.listView1.Size = new System.Drawing.Size(991, 298);
+            this.listView1.Size = new System.Drawing.Size(1105, 298);
             this.listView1.TabIndex = 2;
             this.listView1.UseCompatibleStateImageBehavior = false;
             this.listView1.View = System.Windows.Forms.View.Details;
             // 
-            // columnHeader1
+            // nColumnHeader
             // 
-            this.columnHeader1.Text = "#";
-            this.columnHeader1.Width = 40;
+            this.nColumnHeader.Text = "#";
+            this.nColumnHeader.Width = 40;
             // 
-            // columnHeader2
+            // statusColumnHeader
             // 
-            this.columnHeader2.Text = "File name";
-            this.columnHeader2.Width = 406;
+            this.statusColumnHeader.Text = "Status";
+            this.statusColumnHeader.Width = 110;
             // 
-            // columnHeader3
+            // currentNameColumnHeader
             // 
-            this.columnHeader3.Text = "Hash";
-            this.columnHeader3.Width = 160;
+            this.currentNameColumnHeader.Text = "File name";
+            this.currentNameColumnHeader.Width = 406;
             // 
-            // columnHeader4
+            // hashColumnHeader
             // 
-            this.columnHeader4.Text = "New Name";
-            this.columnHeader4.Width = 384;
+            this.hashColumnHeader.Text = "Hash";
+            this.hashColumnHeader.Width = 160;
+            // 
+            // newNameColumnHeader
+            // 
+            this.newNameColumnHeader.Text = "New Name";
+            this.newNameColumnHeader.Width = 384;
+            // 
+            // itemContextMenu
+            // 
+            this.itemContextMenu.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.addMenuItem,
+            this.skipMenuItem});
+            this.itemContextMenu.Name = "itemContextMenu";
+            this.itemContextMenu.Size = new System.Drawing.Size(166, 48);
+            this.itemContextMenu.Opening += new System.ComponentModel.CancelEventHandler(this.itemContextMenu_Opening);
+            // 
+            // addMenuItem
+            // 
+            this.addMenuItem.Name = "addMenuItem";
+            this.addMenuItem.ShortcutKeys = ((System.Windows.Forms.Keys)((System.Windows.Forms.Keys.Control | System.Windows.Forms.Keys.O)));
+            this.addMenuItem.Size = new System.Drawing.Size(165, 22);
+            this.addMenuItem.Text = "Add Files";
+            this.addMenuItem.Click += new System.EventHandler(this.addMenuItem_Click);
+            // 
+            // skipMenuItem
+            // 
+            this.skipMenuItem.Name = "skipMenuItem";
+            this.skipMenuItem.Size = new System.Drawing.Size(165, 22);
+            this.skipMenuItem.Text = "Skip";
+            this.skipMenuItem.Visible = false;
+            this.skipMenuItem.Click += new System.EventHandler(this.skipMenuItem_Click);
             // 
             // openFileDialog1
             // 
@@ -116,7 +155,7 @@
             | System.Windows.Forms.AnchorStyles.Right)));
             this.totprogressBar.Location = new System.Drawing.Point(59, 379);
             this.totprogressBar.Name = "totprogressBar";
-            this.totprogressBar.Size = new System.Drawing.Size(944, 23);
+            this.totprogressBar.Size = new System.Drawing.Size(1058, 23);
             this.totprogressBar.TabIndex = 9;
             // 
             // fileprogressBar
@@ -125,14 +164,15 @@
             | System.Windows.Forms.AnchorStyles.Right)));
             this.fileprogressBar.Location = new System.Drawing.Point(59, 347);
             this.fileprogressBar.Name = "fileprogressBar";
-            this.fileprogressBar.Size = new System.Drawing.Size(944, 23);
+            this.fileprogressBar.Size = new System.Drawing.Size(1058, 23);
             this.fileprogressBar.TabIndex = 7;
             // 
             // cancelBtn
             // 
             this.cancelBtn.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
+            this.cancelBtn.Enabled = false;
             this.cancelBtn.FlatStyle = System.Windows.Forms.FlatStyle.System;
-            this.cancelBtn.Location = new System.Drawing.Point(352, 414);
+            this.cancelBtn.Location = new System.Drawing.Point(492, 414);
             this.cancelBtn.Name = "cancelBtn";
             this.cancelBtn.Size = new System.Drawing.Size(140, 35);
             this.cancelBtn.TabIndex = 12;
@@ -143,8 +183,9 @@
             // renameBtn
             // 
             this.renameBtn.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
+            this.renameBtn.Enabled = false;
             this.renameBtn.FlatStyle = System.Windows.Forms.FlatStyle.System;
-            this.renameBtn.Location = new System.Drawing.Point(692, 414);
+            this.renameBtn.Location = new System.Drawing.Point(812, 414);
             this.renameBtn.Name = "renameBtn";
             this.renameBtn.Size = new System.Drawing.Size(140, 35);
             this.renameBtn.TabIndex = 11;
@@ -156,19 +197,20 @@
             // 
             this.selectfilesBtn.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
             this.selectfilesBtn.FlatStyle = System.Windows.Forms.FlatStyle.System;
-            this.selectfilesBtn.Location = new System.Drawing.Point(522, 414);
+            this.selectfilesBtn.Location = new System.Drawing.Point(652, 414);
             this.selectfilesBtn.Name = "selectfilesBtn";
             this.selectfilesBtn.Size = new System.Drawing.Size(140, 35);
             this.selectfilesBtn.TabIndex = 10;
-            this.selectfilesBtn.Text = "Select Files";
+            this.selectfilesBtn.Text = "Add Files";
             this.selectfilesBtn.UseVisualStyleBackColor = true;
             this.selectfilesBtn.Click += new System.EventHandler(this.selectfilesBtn_Click);
             // 
             // hashBtn
             // 
             this.hashBtn.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
+            this.hashBtn.Enabled = false;
             this.hashBtn.FlatStyle = System.Windows.Forms.FlatStyle.System;
-            this.hashBtn.Location = new System.Drawing.Point(862, 414);
+            this.hashBtn.Location = new System.Drawing.Point(972, 414);
             this.hashBtn.Name = "hashBtn";
             this.hashBtn.Size = new System.Drawing.Size(140, 35);
             this.hashBtn.TabIndex = 8;
@@ -247,7 +289,7 @@
             this.pauseButton.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
             this.pauseButton.Enabled = false;
             this.pauseButton.FlatStyle = System.Windows.Forms.FlatStyle.System;
-            this.pauseButton.Location = new System.Drawing.Point(182, 414);
+            this.pauseButton.Location = new System.Drawing.Point(332, 414);
             this.pauseButton.Name = "pauseButton";
             this.pauseButton.Size = new System.Drawing.Size(140, 35);
             this.pauseButton.TabIndex = 20;
@@ -258,6 +300,7 @@
             // previewButton
             // 
             this.previewButton.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
+            this.previewButton.Enabled = false;
             this.previewButton.FlatStyle = System.Windows.Forms.FlatStyle.System;
             this.previewButton.Location = new System.Drawing.Point(12, 414);
             this.previewButton.Name = "previewButton";
@@ -273,7 +316,7 @@
             this.endRadioButton.AutoSize = true;
             this.endRadioButton.Checked = true;
             this.endRadioButton.ForeColor = System.Drawing.Color.White;
-            this.endRadioButton.Location = new System.Drawing.Point(958, 321);
+            this.endRadioButton.Location = new System.Drawing.Point(1072, 321);
             this.endRadioButton.Name = "endRadioButton";
             this.endRadioButton.Size = new System.Drawing.Size(44, 17);
             this.endRadioButton.TabIndex = 22;
@@ -286,7 +329,7 @@
             this.startRadioButton.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
             this.startRadioButton.AutoSize = true;
             this.startRadioButton.ForeColor = System.Drawing.Color.White;
-            this.startRadioButton.Location = new System.Drawing.Point(890, 321);
+            this.startRadioButton.Location = new System.Drawing.Point(1004, 321);
             this.startRadioButton.Name = "startRadioButton";
             this.startRadioButton.Size = new System.Drawing.Size(47, 17);
             this.startRadioButton.TabIndex = 23;
@@ -304,13 +347,27 @@
             this.remainingLabel.TabIndex = 24;
             this.remainingLabel.Text = "Remaining Time : 00:00:00";
             // 
+            // skipButton
+            // 
+            this.skipButton.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
+            this.skipButton.Enabled = false;
+            this.skipButton.FlatStyle = System.Windows.Forms.FlatStyle.System;
+            this.skipButton.Location = new System.Drawing.Point(172, 414);
+            this.skipButton.Name = "skipButton";
+            this.skipButton.Size = new System.Drawing.Size(140, 35);
+            this.skipButton.TabIndex = 25;
+            this.skipButton.Text = "Skip";
+            this.skipButton.UseVisualStyleBackColor = true;
+            this.skipButton.Click += new System.EventHandler(this.skipButton_Click);
+            // 
             // Form1
             // 
             this.AllowDrop = true;
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(25)))), ((int)(((byte)(25)))), ((int)(((byte)(25)))));
-            this.ClientSize = new System.Drawing.Size(1015, 461);
+            this.ClientSize = new System.Drawing.Size(1129, 461);
+            this.Controls.Add(this.skipButton);
             this.Controls.Add(this.remainingLabel);
             this.Controls.Add(this.startRadioButton);
             this.Controls.Add(this.endRadioButton);
@@ -329,12 +386,13 @@
             this.Controls.Add(this.selectfilesBtn);
             this.Controls.Add(this.hashBtn);
             this.Controls.Add(this.listView1);
-            this.MinimumSize = new System.Drawing.Size(1030, 500);
+            this.MinimumSize = new System.Drawing.Size(1145, 500);
             this.Name = "Form1";
             this.Text = "Hash Renamer";
             this.Shown += new System.EventHandler(this.Form1_Shown);
             this.DragDrop += new System.Windows.Forms.DragEventHandler(this.Form1_DragDrop);
             this.DragEnter += new System.Windows.Forms.DragEventHandler(this.Form1_DragEnter);
+            this.itemContextMenu.ResumeLayout(false);
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -342,10 +400,10 @@
 
         #endregion
         private System.Windows.Forms.ListView listView1;
-        private System.Windows.Forms.ColumnHeader columnHeader1;
-        private System.Windows.Forms.ColumnHeader columnHeader2;
-        private System.Windows.Forms.ColumnHeader columnHeader3;
-        private System.Windows.Forms.ColumnHeader columnHeader4;
+        private System.Windows.Forms.ColumnHeader nColumnHeader;
+        private System.Windows.Forms.ColumnHeader currentNameColumnHeader;
+        private System.Windows.Forms.ColumnHeader hashColumnHeader;
+        private System.Windows.Forms.ColumnHeader newNameColumnHeader;
         private System.Windows.Forms.OpenFileDialog openFileDialog1;
         private System.ComponentModel.BackgroundWorker backgroundWorker1;
         private System.Windows.Forms.ProgressBar totprogressBar;
@@ -365,6 +423,11 @@
         private System.Windows.Forms.RadioButton endRadioButton;
         private System.Windows.Forms.RadioButton startRadioButton;
         private System.Windows.Forms.Label remainingLabel;
+        private System.Windows.Forms.ContextMenuStrip itemContextMenu;
+        private System.Windows.Forms.ToolStripMenuItem skipMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem addMenuItem;
+        private System.Windows.Forms.ColumnHeader statusColumnHeader;
+        private System.Windows.Forms.Button skipButton;
     }
 }
 
