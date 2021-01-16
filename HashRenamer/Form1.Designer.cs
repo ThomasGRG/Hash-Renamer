@@ -38,6 +38,7 @@
             this.itemContextMenu = new System.Windows.Forms.ContextMenuStrip(this.components);
             this.addMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.skipMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.removeMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.openFileDialog1 = new System.Windows.Forms.OpenFileDialog();
             this.backgroundWorker1 = new System.ComponentModel.BackgroundWorker();
             this.totprogressBar = new System.Windows.Forms.ProgressBar();
@@ -58,6 +59,7 @@
             this.startRadioButton = new System.Windows.Forms.RadioButton();
             this.remainingLabel = new System.Windows.Forms.Label();
             this.skipButton = new System.Windows.Forms.Button();
+            this.clearButton = new System.Windows.Forms.Button();
             this.itemContextMenu.SuspendLayout();
             this.SuspendLayout();
             // 
@@ -115,9 +117,10 @@
             // 
             this.itemContextMenu.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.addMenuItem,
-            this.skipMenuItem});
+            this.skipMenuItem,
+            this.removeMenuItem});
             this.itemContextMenu.Name = "itemContextMenu";
-            this.itemContextMenu.Size = new System.Drawing.Size(166, 48);
+            this.itemContextMenu.Size = new System.Drawing.Size(166, 70);
             this.itemContextMenu.Opening += new System.ComponentModel.CancelEventHandler(this.itemContextMenu_Opening);
             // 
             // addMenuItem
@@ -135,6 +138,14 @@
             this.skipMenuItem.Text = "Skip";
             this.skipMenuItem.Visible = false;
             this.skipMenuItem.Click += new System.EventHandler(this.skipMenuItem_Click);
+            // 
+            // removeMenuItem
+            // 
+            this.removeMenuItem.Name = "removeMenuItem";
+            this.removeMenuItem.Size = new System.Drawing.Size(165, 22);
+            this.removeMenuItem.Text = "Remove";
+            this.removeMenuItem.Visible = false;
+            this.removeMenuItem.Click += new System.EventHandler(this.removeMenuItem_Click);
             // 
             // openFileDialog1
             // 
@@ -172,9 +183,9 @@
             this.cancelBtn.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
             this.cancelBtn.Enabled = false;
             this.cancelBtn.FlatStyle = System.Windows.Forms.FlatStyle.System;
-            this.cancelBtn.Location = new System.Drawing.Point(492, 414);
+            this.cancelBtn.Location = new System.Drawing.Point(432, 414);
             this.cancelBtn.Name = "cancelBtn";
-            this.cancelBtn.Size = new System.Drawing.Size(140, 35);
+            this.cancelBtn.Size = new System.Drawing.Size(125, 35);
             this.cancelBtn.TabIndex = 12;
             this.cancelBtn.Text = "Cancel";
             this.cancelBtn.UseVisualStyleBackColor = true;
@@ -185,9 +196,9 @@
             this.renameBtn.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
             this.renameBtn.Enabled = false;
             this.renameBtn.FlatStyle = System.Windows.Forms.FlatStyle.System;
-            this.renameBtn.Location = new System.Drawing.Point(812, 414);
+            this.renameBtn.Location = new System.Drawing.Point(152, 414);
             this.renameBtn.Name = "renameBtn";
-            this.renameBtn.Size = new System.Drawing.Size(140, 35);
+            this.renameBtn.Size = new System.Drawing.Size(125, 35);
             this.renameBtn.TabIndex = 11;
             this.renameBtn.Text = "Rename";
             this.renameBtn.UseVisualStyleBackColor = true;
@@ -197,9 +208,9 @@
             // 
             this.selectfilesBtn.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
             this.selectfilesBtn.FlatStyle = System.Windows.Forms.FlatStyle.System;
-            this.selectfilesBtn.Location = new System.Drawing.Point(652, 414);
+            this.selectfilesBtn.Location = new System.Drawing.Point(852, 414);
             this.selectfilesBtn.Name = "selectfilesBtn";
-            this.selectfilesBtn.Size = new System.Drawing.Size(140, 35);
+            this.selectfilesBtn.Size = new System.Drawing.Size(125, 35);
             this.selectfilesBtn.TabIndex = 10;
             this.selectfilesBtn.Text = "Add Files";
             this.selectfilesBtn.UseVisualStyleBackColor = true;
@@ -210,9 +221,9 @@
             this.hashBtn.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
             this.hashBtn.Enabled = false;
             this.hashBtn.FlatStyle = System.Windows.Forms.FlatStyle.System;
-            this.hashBtn.Location = new System.Drawing.Point(972, 414);
+            this.hashBtn.Location = new System.Drawing.Point(992, 414);
             this.hashBtn.Name = "hashBtn";
-            this.hashBtn.Size = new System.Drawing.Size(140, 35);
+            this.hashBtn.Size = new System.Drawing.Size(125, 35);
             this.hashBtn.TabIndex = 8;
             this.hashBtn.Text = "Hash";
             this.hashBtn.UseVisualStyleBackColor = true;
@@ -289,9 +300,9 @@
             this.pauseButton.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
             this.pauseButton.Enabled = false;
             this.pauseButton.FlatStyle = System.Windows.Forms.FlatStyle.System;
-            this.pauseButton.Location = new System.Drawing.Point(332, 414);
+            this.pauseButton.Location = new System.Drawing.Point(712, 414);
             this.pauseButton.Name = "pauseButton";
-            this.pauseButton.Size = new System.Drawing.Size(140, 35);
+            this.pauseButton.Size = new System.Drawing.Size(125, 35);
             this.pauseButton.TabIndex = 20;
             this.pauseButton.Text = "Pause";
             this.pauseButton.UseVisualStyleBackColor = true;
@@ -304,7 +315,7 @@
             this.previewButton.FlatStyle = System.Windows.Forms.FlatStyle.System;
             this.previewButton.Location = new System.Drawing.Point(12, 414);
             this.previewButton.Name = "previewButton";
-            this.previewButton.Size = new System.Drawing.Size(140, 35);
+            this.previewButton.Size = new System.Drawing.Size(125, 35);
             this.previewButton.TabIndex = 21;
             this.previewButton.Text = "Preview";
             this.previewButton.UseVisualStyleBackColor = true;
@@ -352,13 +363,26 @@
             this.skipButton.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
             this.skipButton.Enabled = false;
             this.skipButton.FlatStyle = System.Windows.Forms.FlatStyle.System;
-            this.skipButton.Location = new System.Drawing.Point(172, 414);
+            this.skipButton.Location = new System.Drawing.Point(572, 414);
             this.skipButton.Name = "skipButton";
-            this.skipButton.Size = new System.Drawing.Size(140, 35);
+            this.skipButton.Size = new System.Drawing.Size(125, 35);
             this.skipButton.TabIndex = 25;
             this.skipButton.Text = "Skip";
             this.skipButton.UseVisualStyleBackColor = true;
             this.skipButton.Click += new System.EventHandler(this.skipButton_Click);
+            // 
+            // clearButton
+            // 
+            this.clearButton.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
+            this.clearButton.Enabled = false;
+            this.clearButton.FlatStyle = System.Windows.Forms.FlatStyle.System;
+            this.clearButton.Location = new System.Drawing.Point(292, 414);
+            this.clearButton.Name = "clearButton";
+            this.clearButton.Size = new System.Drawing.Size(125, 35);
+            this.clearButton.TabIndex = 26;
+            this.clearButton.Text = "Clear";
+            this.clearButton.UseVisualStyleBackColor = true;
+            this.clearButton.Click += new System.EventHandler(this.clearButton_Click);
             // 
             // Form1
             // 
@@ -367,6 +391,7 @@
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(25)))), ((int)(((byte)(25)))), ((int)(((byte)(25)))));
             this.ClientSize = new System.Drawing.Size(1129, 461);
+            this.Controls.Add(this.clearButton);
             this.Controls.Add(this.skipButton);
             this.Controls.Add(this.remainingLabel);
             this.Controls.Add(this.startRadioButton);
@@ -428,6 +453,8 @@
         private System.Windows.Forms.ToolStripMenuItem addMenuItem;
         private System.Windows.Forms.ColumnHeader statusColumnHeader;
         private System.Windows.Forms.Button skipButton;
+        private System.Windows.Forms.ToolStripMenuItem removeMenuItem;
+        private System.Windows.Forms.Button clearButton;
     }
 }
 
