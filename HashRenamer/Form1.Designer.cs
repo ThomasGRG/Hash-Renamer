@@ -167,7 +167,7 @@
             this.totprogressBar.Location = new System.Drawing.Point(59, 379);
             this.totprogressBar.Name = "totprogressBar";
             this.totprogressBar.Size = new System.Drawing.Size(1058, 23);
-            this.totprogressBar.TabIndex = 9;
+            this.totprogressBar.TabIndex = 7;
             // 
             // fileprogressBar
             // 
@@ -176,7 +176,7 @@
             this.fileprogressBar.Location = new System.Drawing.Point(59, 347);
             this.fileprogressBar.Name = "fileprogressBar";
             this.fileprogressBar.Size = new System.Drawing.Size(1058, 23);
-            this.fileprogressBar.TabIndex = 7;
+            this.fileprogressBar.TabIndex = 6;
             // 
             // cancelBtn
             // 
@@ -199,7 +199,7 @@
             this.renameBtn.Location = new System.Drawing.Point(152, 414);
             this.renameBtn.Name = "renameBtn";
             this.renameBtn.Size = new System.Drawing.Size(125, 35);
-            this.renameBtn.TabIndex = 11;
+            this.renameBtn.TabIndex = 14;
             this.renameBtn.Text = "Rename";
             this.renameBtn.UseVisualStyleBackColor = true;
             this.renameBtn.Click += new System.EventHandler(this.renameBtn_Click);
@@ -211,7 +211,7 @@
             this.selectfilesBtn.Location = new System.Drawing.Point(852, 414);
             this.selectfilesBtn.Name = "selectfilesBtn";
             this.selectfilesBtn.Size = new System.Drawing.Size(125, 35);
-            this.selectfilesBtn.TabIndex = 10;
+            this.selectfilesBtn.TabIndex = 9;
             this.selectfilesBtn.Text = "Add Files";
             this.selectfilesBtn.UseVisualStyleBackColor = true;
             this.selectfilesBtn.Click += new System.EventHandler(this.selectfilesBtn_Click);
@@ -237,7 +237,7 @@
             this.countLabel.Location = new System.Drawing.Point(15, 385);
             this.countLabel.Name = "countLabel";
             this.countLabel.Size = new System.Drawing.Size(24, 13);
-            this.countLabel.TabIndex = 14;
+            this.countLabel.TabIndex = 21;
             this.countLabel.Text = "0/0";
             // 
             // progressLabel
@@ -248,7 +248,7 @@
             this.progressLabel.Location = new System.Drawing.Point(15, 354);
             this.progressLabel.Name = "progressLabel";
             this.progressLabel.Size = new System.Drawing.Size(21, 13);
-            this.progressLabel.TabIndex = 15;
+            this.progressLabel.TabIndex = 22;
             this.progressLabel.Text = "0%";
             // 
             // elapsedLabel
@@ -303,7 +303,7 @@
             this.pauseButton.Location = new System.Drawing.Point(712, 414);
             this.pauseButton.Name = "pauseButton";
             this.pauseButton.Size = new System.Drawing.Size(125, 35);
-            this.pauseButton.TabIndex = 20;
+            this.pauseButton.TabIndex = 10;
             this.pauseButton.Text = "Pause";
             this.pauseButton.UseVisualStyleBackColor = true;
             this.pauseButton.Click += new System.EventHandler(this.pauseButton_Click);
@@ -316,7 +316,7 @@
             this.previewButton.Location = new System.Drawing.Point(12, 414);
             this.previewButton.Name = "previewButton";
             this.previewButton.Size = new System.Drawing.Size(125, 35);
-            this.previewButton.TabIndex = 21;
+            this.previewButton.TabIndex = 15;
             this.previewButton.Text = "Preview";
             this.previewButton.UseVisualStyleBackColor = true;
             this.previewButton.Click += new System.EventHandler(this.previewButton_Click);
@@ -330,7 +330,7 @@
             this.endRadioButton.Location = new System.Drawing.Point(1072, 321);
             this.endRadioButton.Name = "endRadioButton";
             this.endRadioButton.Size = new System.Drawing.Size(44, 17);
-            this.endRadioButton.TabIndex = 22;
+            this.endRadioButton.TabIndex = 24;
             this.endRadioButton.TabStop = true;
             this.endRadioButton.Text = "End";
             this.endRadioButton.UseVisualStyleBackColor = true;
@@ -355,7 +355,7 @@
             this.remainingLabel.Location = new System.Drawing.Point(695, 323);
             this.remainingLabel.Name = "remainingLabel";
             this.remainingLabel.Size = new System.Drawing.Size(134, 13);
-            this.remainingLabel.TabIndex = 24;
+            this.remainingLabel.TabIndex = 20;
             this.remainingLabel.Text = "Remaining Time : 00:00:00";
             // 
             // skipButton
@@ -366,7 +366,7 @@
             this.skipButton.Location = new System.Drawing.Point(572, 414);
             this.skipButton.Name = "skipButton";
             this.skipButton.Size = new System.Drawing.Size(125, 35);
-            this.skipButton.TabIndex = 25;
+            this.skipButton.TabIndex = 11;
             this.skipButton.Text = "Skip";
             this.skipButton.UseVisualStyleBackColor = true;
             this.skipButton.Click += new System.EventHandler(this.skipButton_Click);
@@ -379,7 +379,7 @@
             this.clearButton.Location = new System.Drawing.Point(292, 414);
             this.clearButton.Name = "clearButton";
             this.clearButton.Size = new System.Drawing.Size(125, 35);
-            this.clearButton.TabIndex = 26;
+            this.clearButton.TabIndex = 13;
             this.clearButton.Text = "Clear";
             this.clearButton.UseVisualStyleBackColor = true;
             this.clearButton.Click += new System.EventHandler(this.clearButton_Click);

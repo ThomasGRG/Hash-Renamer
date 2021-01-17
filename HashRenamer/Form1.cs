@@ -161,7 +161,16 @@ namespace HashRenamer
 
         private void clearButton_Click(object sender, EventArgs e)
         {
+            clearButton.Enabled = false;
+            hashBtn.Enabled = false;
+            previewButton.Enabled = false;
+            renameBtn.Enabled = false;
+            selectfilesBtn.Enabled = true;
+            itemContextMenu.Items[0].Enabled = true;
+            itemContextMenu.Items[1].Enabled = true;
+            itemContextMenu.Items[2].Enabled = true;
             listView1.Items.Clear();
+            files.Clear();
             elapsedLabel.Text = "Elapsed Time : 00:00:00";
             remainingLabel.Text = "Remaining Time : 00:00:00";
             speedLabel.Text = "Speed : 0";
@@ -175,10 +184,6 @@ namespace HashRenamer
             cancel = skip = remove = hashing = pending = false;
             stopWatch.Reset();
             timer.Stop();
-            selectfilesBtn.Enabled = true;
-            itemContextMenu.Items[0].Enabled = true;
-            itemContextMenu.Items[1].Enabled = true;
-            itemContextMenu.Items[2].Enabled = true;
             fileprogressBar.Value = 0;
             totprogressBar.Value = 0;
             progressLabel.Text = "0%";
