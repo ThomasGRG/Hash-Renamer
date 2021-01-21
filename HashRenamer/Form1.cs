@@ -358,7 +358,7 @@ namespace HashRenamer
                 long cnt = 0;
 
                 size = stream.Length;
-                // fing number of times loop runs till end of stream
+                // find number of times loop runs till end of stream
                 cnt = size / Convert.ToInt64(bufferSize);
                 // find interval in which to update progressbar
                 if (cnt <= 100)
