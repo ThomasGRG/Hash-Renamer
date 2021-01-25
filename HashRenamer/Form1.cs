@@ -60,8 +60,11 @@ namespace HashRenamer
                     itemContextMenu.Items[1].Enabled = true;
                     itemContextMenu.Items[2].Enabled = true;
                     selectfilesBtn.Enabled = true;
-                    hashBtn.Enabled = true;
-                    clearButton.Enabled = true;
+                    if (state == "unknown")
+                    {
+                        hashBtn.Enabled = true;
+                        clearButton.Enabled = true;
+                    }
                 }
             }
         }
@@ -89,6 +92,8 @@ namespace HashRenamer
                 itemClass obj = new itemClass(item, name);
                 files.Add(obj);
             }
+            previewButton.Enabled = false;
+            renameBtn.Enabled = false;
             totprogressBar.Maximum = files.Count;
             countLabel.Text = $"{fCount}/{files.Count}";
             for (int i = listView1.Items.Count; i < files.Count; i++)
@@ -112,8 +117,11 @@ namespace HashRenamer
             // Set tmp2 to tmp1 for next calculation
             tmp2 += tmp;
             // Calculate remaining time - remaining bytes/bytes read in 1 second
-            TimeSpan t = TimeSpan.FromSeconds((size - totalBytesRead)/tmp);
-            remainingLabel.Text = $"Remaining Time : {t.Hours:00}:{t.Minutes:00}:{t.Seconds:00}";
+            if (tmp != 0)
+            {
+                TimeSpan t = TimeSpan.FromSeconds((size - totalBytesRead) / tmp);
+                remainingLabel.Text = $"Remaining Time : {t.Hours:00}:{t.Minutes:00}:{t.Seconds:00}";
+            }
             // Convert units - B,KB,MB,GB/s
             if (tmp  <= 1024)
             {
@@ -162,6 +170,17 @@ namespace HashRenamer
         private void clearButton_Click(object sender, EventArgs e)
         {
             clearButton.Enabled = false;
+            reset();
+            clearButton.Enabled = true;
+        }
+
+        private void reset()
+        {
+            listView1.Items.Clear();
+            stopWatch.Reset();
+            timer.Stop();
+            // Buttons...
+            clearButton.Enabled = false;
             hashBtn.Enabled = false;
             previewButton.Enabled = false;
             renameBtn.Enabled = false;
@@ -169,25 +188,25 @@ namespace HashRenamer
             itemContextMenu.Items[0].Enabled = true;
             itemContextMenu.Items[1].Enabled = true;
             itemContextMenu.Items[2].Enabled = true;
-            listView1.Items.Clear();
-            files.Clear();
+            // Labels...
             elapsedLabel.Text = "Elapsed Time : 00:00:00";
             remainingLabel.Text = "Remaining Time : 00:00:00";
             speedLabel.Text = "Speed : 0";
             processedLabel.Text = "Processed : 0";
             totSizeLabel.Text = "File Size : 0";
+            progressLabel.Text = "0%";
+            countLabel.Text = "0/0";
+            // Variables...
+            files.Clear();
             fCount = lCount = rCount = pCount = p = 0;
             state = "unknown";
             operation = "";
             tmp1 = tmp2 = size = totalBytesRead = 0;
             fRun = true;
             cancel = skip = remove = hashing = pending = false;
-            stopWatch.Reset();
-            timer.Stop();
+            // ProgressBars...
             fileprogressBar.Value = 0;
             totprogressBar.Value = 0;
-            progressLabel.Text = "0%";
-            countLabel.Text = "0/0";
         }
 
         private void itemContextMenu_Opening(object sender, CancelEventArgs e)
@@ -225,8 +244,11 @@ namespace HashRenamer
                     itemContextMenu.Items[1].Enabled = true;
                     itemContextMenu.Items[2].Enabled = true;
                     selectfilesBtn.Enabled = true;
-                    hashBtn.Enabled = true;
-                    clearButton.Enabled = true;
+                    if (state == "unknown")
+                    {
+                        hashBtn.Enabled = true;
+                        clearButton.Enabled = true;
+                    }
                 }
             }
         }
@@ -275,10 +297,30 @@ namespace HashRenamer
             {
                 for (int i = 0; i < selIndex.Length; i++)
                 {
+                    if (selIndex[i] < fCount)
+                    {
+                        // removing already hashed file
+                        fCount -= 1;
+                        lCount -= 1;
+                    }
+                    else if (fCount == selIndex[i])
+                    {
+                        // if currently hashing file is to be removed
+                        remove = true;
+                    }
                     files.RemoveAt(selIndex[i]);
                     listView1.Items.RemoveAt(selIndex[i]);
                 }
-                totprogressBar.Maximum = files.Count;
+                if (files.Count == 0)
+                {
+                    reset();
+                }
+                else
+                {
+                    countLabel.Text = $"{fCount}/{files.Count}";
+                    totprogressBar.Maximum = files.Count;
+                    totprogressBar.Value = fCount;
+                }
                 itemContextMenu.Items[0].Enabled = true;
                 itemContextMenu.Items[1].Enabled = true;
                 itemContextMenu.Items[2].Enabled = true;
@@ -289,6 +331,10 @@ namespace HashRenamer
         private void skipButton_Click(object sender, EventArgs e)
         {
             skip = true;
+            if (state == "paused")
+            {
+                MessageBox.Show("File will be skipped on resume", "File skipped!", MessageBoxButtons.OK, MessageBoxIcon.Information);
+            }
         }
 
         private void Form1_DragEnter(object sender, DragEventArgs e)
@@ -318,8 +364,11 @@ namespace HashRenamer
                 itemContextMenu.Items[1].Enabled = true;
                 itemContextMenu.Items[2].Enabled = true;
                 selectfilesBtn.Enabled = true;
-                hashBtn.Enabled = true;
-                clearButton.Enabled = true;
+                if (state == "unknown")
+                {
+                    hashBtn.Enabled = true;
+                    clearButton.Enabled = true;
+                }
             }
         }
 
@@ -393,6 +442,10 @@ namespace HashRenamer
 
                 do
                 {
+                    if (skip || remove || cancel || state == "paused")
+                    {
+                        break;
+                    }
                     // if there are any pending operations
                     if (pending)
                     {
@@ -411,12 +464,13 @@ namespace HashRenamer
                                     // if currently hashing file is to be skipped
                                     skip = true;
                                 }
-                                else
-                                {
-                                    files[selIndex[j]].skip = true;
-                                }
+                                files[selIndex[j]].skip = true;
                             }
                             worker.ReportProgress(-2);
+                            if (skip)
+                            {
+                                break;
+                            }
                         }
                         else if(operation == "remove")
                         {
@@ -427,16 +481,21 @@ namespace HashRenamer
                                 {
                                     // removing already hashed file
                                     fCount -= 1;
-                                    lCount -= 1;
+                                    i -= 1;
                                 }
                                 else if (tmp == selIndex[j])
                                 {
                                     // if currently hashing file is to be removed
+                                    i -= 1;
                                     remove = true;
                                 }
                                 files.RemoveAt(selIndex[j]);
                             }
                             worker.ReportProgress(-2);
+                            if (remove)
+                            {
+                                break;
+                            }
                         }
                         else if (operation == "addfiles")
                         {
@@ -478,9 +537,9 @@ namespace HashRenamer
                     {
                         worker.ReportProgress(Convert.ToInt32(cnt), totalBytesRead);
                     }
-                } while (readAheadBytesRead != 0 && !cancel && state != "paused" && skip == false && remove == false);
+                } while (readAheadBytesRead != 0);
 
-                if (cancel == false && state!= "paused" && skip == false)
+                if (cancel == false && state!= "paused" && skip == false && remove == false)
                 {
                     // convert hash to readable form and store it
                     hash = crc32.Hash;
@@ -500,6 +559,7 @@ namespace HashRenamer
                     remove = false;
                     totalBytesRead = 0;
                     p = 0;
+                    state = "unknown";
                 }
 
                 if (skip)
@@ -509,6 +569,7 @@ namespace HashRenamer
                     fCount += 1;
                     totalBytesRead = 0;
                     p = 0;
+                    state = "unknown";
                     worker.ReportProgress(-1);
                 }
 
@@ -645,9 +706,23 @@ namespace HashRenamer
                 }
                 else if(operation == "remove")
                 {
-                    totprogressBar.Maximum = files.Count;
+                    if (files.Count == 0)
+                    {
+                        reset();
+                    }
+                    else
+                    {
+                        countLabel.Text = $"{fCount}/{files.Count}";
+                        totprogressBar.Maximum = files.Count;
+                        totprogressBar.Value = fCount;
+                    }
+                    int tmp = lCount;
                     for (int i = 0; i < selIndex.Length; i++)
                     {
+                        if (selIndex[i] < tmp)
+                        {
+                            lCount -= 1;
+                        }
                         listView1.Items.RemoveAt(selIndex[i]);
                     }
                 }
@@ -878,11 +953,14 @@ namespace HashRenamer
                     timer.Stop();
                     clearButton.Enabled = true;
                     selectfilesBtn.Enabled = true;
-                    renameBtn.Enabled = true;
-                    previewButton.Enabled = true;
                     pauseButton.Enabled = false;
                     skipButton.Enabled = false;
                     cancelBtn.Enabled = false;
+                    if (files.Count != 0)
+                    {
+                        renameBtn.Enabled = true;
+                        previewButton.Enabled = true;
+                    }
                 }
             }
             else if (state == "paused")
