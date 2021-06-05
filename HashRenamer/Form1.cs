@@ -410,17 +410,23 @@ namespace HashRenamer
                 // find number of times loop runs till end of stream
                 cnt = size / Convert.ToInt64(bufferSize);
                 // find interval in which to update progressbar
-                if (cnt <= 100)
+                if (cnt <= 100 && cnt > 1)
                 {
-                    // example - cnt = 49, after below calc cnt = 2, so update progress bar by 2 every time loop runs
+                    // example -> cnt = 49, after below calc cnt = 2, so update progress bar by 2 every time loop runs
                     cnt = (100 / (cnt + 1));
                     // to show cnt < 100 or not
                     flag = false;
                 }
-                else
+                else if(cnt > 100)
                 {
-                    // example - cnt = 200, after below calc cnt = 3, update progress bar by 1 every time loop runs cnt times (3 in this case)
+                    // example -> cnt = 200, after below calc cnt = 3, update progress bar by 1 every time loop runs cnt times (3 in this case)
                     cnt = (cnt / 100) + 1;
+                }
+                else if(cnt <= 1)
+                {
+                    // example -> cnt = 0 (size < bufferSize), cnt = 100 cause loop only runs once in this case
+                    // example -> cnt = 1 (size = bufferSize = 4096), cnt = 100 cause loop only runs once in this case
+                    cnt = 100;
                 }
 
                 // set stream position to totalBytesRead which holds paused position or default 0 (start of stream)
@@ -547,7 +553,11 @@ namespace HashRenamer
                         cHex += b.ToString("x2");
                     files[fCount].hash = cHex.ToUpper();
                     fCount += 1;
-                    worker.ReportProgress(100, size);
+                    // check if size > 4096 to prevent reporting 100% progess twice in cases of size being < 4096
+                    if (size > 4096)
+                    {
+                        worker.ReportProgress(100, size);
+                    }
                     totalBytesRead = 0;
                     p = 0;
                     // so that it creates new crc32
@@ -679,9 +689,9 @@ namespace HashRenamer
                 }
                 fileprogressBar.Value = c;
                 progressLabel.Text = $"{c}%";
-                totprogressBar.Value += 1;
+    			totprogressBar.Value += 1;
                 countLabel.Text = $"{(lCount + 1)}/{files.Count}";
-                listView1.Items[lCount].SubItems[3].Text = (files[lCount].hash);
+                listView1.Items[lCount].SubItems[3].Text = files[lCount].hash;
                 listView1.Items[lCount].SubItems[1].Text = "Completed";
                 lCount += 1;
             }
