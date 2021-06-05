@@ -22,5 +22,41 @@ namespace HashRenamer.Properties {
                 return defaultInstance;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("Normal")]
+        public global::System.Windows.Forms.FormWindowState Form1State {
+            get {
+                return ((global::System.Windows.Forms.FormWindowState)(this["Form1State"]));
+            }
+            set {
+                this["Form1State"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("30, 300")]
+        public global::System.Drawing.Point Form1Location {
+            get {
+                return ((global::System.Drawing.Point)(this["Form1Location"]));
+            }
+            set {
+                this["Form1Location"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("1716, 765")]
+        public global::System.Drawing.Size Form1Size {
+            get {
+                return ((global::System.Drawing.Size)(this["Form1Size"]));
+            }
+            set {
+                this["Form1Size"] = value;
+            }
+        }
     }
 }

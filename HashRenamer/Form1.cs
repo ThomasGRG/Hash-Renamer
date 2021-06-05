@@ -209,6 +209,34 @@ namespace HashRenamer
             totprogressBar.Value = 0;
         }
 
+        private void Form1_Load(object sender, EventArgs e)
+        {
+            // load saved settings
+            this.WindowState = Properties.Settings.Default.Form1State;
+            this.Location = Properties.Settings.Default.Form1Location;
+            this.Size = Properties.Settings.Default.Form1Size;
+        }
+
+        private void Form1_FormClosing(object sender, FormClosingEventArgs e)
+        {
+            Properties.Settings.Default.Form1State = this.WindowState;
+            if (this.WindowState == FormWindowState.Normal)
+            {
+                // save location and size if the state is normal
+                Properties.Settings.Default.Form1Location = this.Location;
+                Properties.Settings.Default.Form1Size = this.Size;
+            }
+            else
+            {
+                // save the RestoreBounds if the form is minimized or maximized!
+                Properties.Settings.Default.Form1Location = this.RestoreBounds.Location;
+                Properties.Settings.Default.Form1Size = this.RestoreBounds.Size;
+            }
+
+            // save the settings
+            Properties.Settings.Default.Save();
+        }
+
         private void itemContextMenu_Opening(object sender, CancelEventArgs e)
         {
             if (listView1.SelectedIndices.Count > 0)
@@ -427,6 +455,7 @@ namespace HashRenamer
                     // example -> cnt = 0 (size < bufferSize), cnt = 100 cause loop only runs once in this case
                     // example -> cnt = 1 (size = bufferSize = 4096), cnt = 100 cause loop only runs once in this case
                     cnt = 100;
+                    flag = false;
                 }
 
                 // set stream position to totalBytesRead which holds paused position or default 0 (start of stream)
